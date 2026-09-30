@@ -111,6 +111,12 @@ main{max-width:1180px;margin:0 auto;padding:6px 18px 70px}
 .qty-box{display:flex;align-items:center;border:1px solid var(--border);border-radius:10px;overflow:hidden}
 .qty-box button{background:var(--paper);border:none;width:38px;height:38px;font-size:18px;font-weight:700}
 .qty-box span{width:36px;text-align:center;font-weight:700}
+.size-row{margin-bottom:16px}
+.size-row .sl{font-weight:700;font-size:13.5px;display:block;margin-bottom:8px}
+.size-chips{display:flex;flex-wrap:wrap;gap:8px}
+.size-chip{min-width:46px;padding:9px 13px;border:1.5px solid var(--border);border-radius:10px;background:var(--paper);color:var(--ink);font-family:inherit;font-weight:700;font-size:14px}
+.size-chip.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.size-chip.dim{opacity:.4}
 .btn-primary{background:var(--copper);color:#fff;border:none;border-radius:12px;padding:14px 18px;font-weight:800;font-size:15px;width:100%}
 .btn-primary:active{transform:scale(.985)}
 .btn-secondary{background:var(--paper);color:var(--ink);border:1px solid var(--border);border-radius:12px;padding:12px 16px;font-weight:700;width:100%}
@@ -121,12 +127,12 @@ main{max-width:1180px;margin:0 auto;padding:6px 18px 70px}
   padding:env(safe-area-inset-top,0px) 10px env(safe-area-inset-bottom,0px)}
 .lightbox.open{display:flex}
 .lightbox img{max-width:94vw;max-height:80vh;object-fit:contain;border-radius:8px}
-.lightbox .lb-close{position:absolute;top:calc(env(safe-area-inset-top,0px) + 14px);left:16px;color:#fff;font-size:26px;background:none;border:none}
+.lightbox .lb-close{position:absolute;top:calc(env(safe-area-inset-top,0px) + 14px);left:16px;z-index:5;cursor:pointer;padding:8px 12px;line-height:1;color:#fff;font-size:26px;background:none;border:none}
 .lightbox .lb-nav{position:absolute;top:50%;transform:translateY(-50%);color:#fff;background:rgba(255,255,255,.12);
   border:none;width:46px;height:46px;border-radius:50%;font-size:22px}
 .lightbox .lb-prev{right:14px}.lightbox .lb-next{left:14px}
-.lightbox .lb-count{position:absolute;bottom:calc(env(safe-area-inset-bottom,0px) + 16px);color:#fff;font-size:13px;opacity:.8}
-.lightbox .lb-price{position:absolute;top:calc(env(safe-area-inset-top,0px) + 16px);right:0;left:0;text-align:center;color:#fff}
+.lightbox .lb-count{pointer-events:none;position:absolute;bottom:calc(env(safe-area-inset-bottom,0px) + 16px);color:#fff;font-size:13px;opacity:.8}
+.lightbox .lb-price{pointer-events:none;position:absolute;top:calc(env(safe-area-inset-top,0px) + 16px);right:0;left:0;text-align:center;color:#fff}
 .lightbox .lb-price b{display:block;font-size:17px;color:var(--copper-2)}
 .lightbox .lb-price small{font-size:11.5px;opacity:.75}
 
@@ -346,7 +352,7 @@ function customHashes(){
 
 function loadCart(){ try{ const a=JSON.parse(LS.get("jfy_cart")||"[]"); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
 function saveCart(){ LS.set("jfy_cart", JSON.stringify(CART)); renderCartBadge(); }
-let CART = loadCart().filter(c=>c && c.qty>0 && DATA.products.some(p=>p.id===c.id));
+let CART = loadCart().filter(c=>c && c.qty>0 && cartValid(c));
 
 
 
@@ -355,6 +361,39 @@ function toast(msg){
   clearTimeout(window._tt); window._tt=setTimeout(()=>t.classList.remove("show"), 2600);
 }
 function money(n){ return Number(n||0).toLocaleString("ar-EG")+" جنيه"; }
+/* ---- مقاسات وألوان المنتج (اختياري) ----
+   p.sizes = [{size:"40", price:567}] ، p.colors = [{color:"أسود", price:567}]
+   p.variants = [{size:"40", color:"أسود", price:567}]  (بس لو المنتج له مقاسات وألوان مع بعض: كل تركيبة بسعرها) */
+function hasSizes(p){ return !!(p && Array.isArray(p.sizes) && p.sizes.length); }
+function hasColors(p){ return !!(p && Array.isArray(p.colors) && p.colors.length); }
+function hasOptions(p){ return hasSizes(p) || hasColors(p); }
+function optLabel(p){ return (hasSizes(p)&&hasColors(p)) ? 'اختر المقاس واللون' : (hasColors(p) ? 'اختر اللون' : 'اختر المقاس'); }
+function getVariants(p){
+  if(!p || !hasOptions(p)) return [];
+  if(Array.isArray(p.variants) && p.variants.length) return p.variants;
+  const S = hasSizes(p) ? p.sizes : [null], C = hasColors(p) ? p.colors : [null], out = [];
+  S.forEach(s=>C.forEach(c=>out.push({size: s?String(s.size):"", color: c?String(c.color):"",
+    price: (s && s.price>0) ? s.price : ((c && c.price>0) ? c.price : p.price)})));
+  return out;
+}
+function vPrice(p,v){ return v.price>0 ? v.price : p.price; }
+function variantEntry(p,size,color){
+  const z=String(size||""), c=String(color||"");
+  return getVariants(p).find(v=>String(v.size||"")===z && String(v.color||"")===c);
+}
+function sizeEntry(p,size){ return hasSizes(p) ? p.sizes.find(s=>String(s.size)===String(size)) : null; }
+function colorEntry(p,color){ return hasColors(p) ? p.colors.find(c=>String(c.color)===String(color)) : null; }
+function allPrices(p){ const vs=getVariants(p); return vs.length ? vs.map(v=>vPrice(p,v)) : [Number(p.price)||0]; }
+function unitPrice(p,size,color){ const v=variantEntry(p,size,color); return v ? vPrice(p,v) : p.price; }
+function priceFrom(p){ return Math.min.apply(null,allPrices(p)); }
+function priceVaries(p){ const a=allPrices(p); return Math.min.apply(null,a)!==Math.max.apply(null,a); }
+function cartValid(c){
+  const p=DATA.products.find(x=>x.id===c.id); if(!p) return false;
+  if(!hasOptions(p)) return true;
+  if(hasSizes(p) && !c.size) return false;
+  if(hasColors(p) && !c.color) return false;
+  return !!variantEntry(p,c.size,c.color);
+}
 
 /* ================= ROUTER ================= */
 window.addEventListener("hashchange", route);
@@ -438,12 +477,16 @@ function productCardHTML(p){
       ${p.demo?'<div class="demo-tag">منتج تجريبي</div>':''}</div>
     <div class="cbody">
       <div class="cname">${escapeHtml(p.name)}</div>
-      <div class="cprice">${money(p.price)}</div>
-      <button class="addbtn" onclick="event.preventDefault();event.stopPropagation();quickAdd('${p.id}')">أضف للسلة</button>
+      <div class="cprice">${priceVaries(p)?'<small>يبدأ من </small>':''}${money(priceFrom(p))}</div>
+      <button class="addbtn" onclick="event.preventDefault();event.stopPropagation();quickAdd('${p.id}')">${hasOptions(p)?optLabel(p):'أضف للسلة'}</button>
     </div>
   </a>`;
 }
-function quickAdd(id){ addToCart(id,1); toast("تمت إضافة المنتج للسلة"); }
+function quickAdd(id){
+  const p=DATA.products.find(x=>x.id===id);
+  if(hasOptions(p)){ location.hash="#/product/"+id; return; }   // منتج بمقاسات/ألوان: يفتح صفحته ليختار العميل المقاس/اللون
+  addToCart(id,1); toast("تمت إضافة المنتج للسلة");
+}
 
 function doSearch(){
   const si=document.getElementById("searchInput"); if(!si) return;
@@ -506,7 +549,7 @@ async function copyStoreLink(){
 }
 
 /* ---------- product page ---------- */
-let GALLERY_IDX = 0, GALLERY_PID = null;
+let GALLERY_IDX = 0, GALLERY_PID = null, PD_SIZE = null, PD_COLOR = null;
 function renderProduct(id){
   const p = DATA.products.find(x=>x.id===id);
   const app = document.getElementById("app");
@@ -514,7 +557,7 @@ function renderProduct(id){
     app.innerHTML = headerHTML()+`<main><div class="empty"><div class="e-ic">😕</div>هذا المنتج غير متاح حاليًا<br><a class="backlink" href="#/">‹ العودة للمتجر</a></div></main>`;
     wireHeader(); return;
   }
-  GALLERY_PID = id; GALLERY_IDX = 0;
+  GALLERY_PID = id; GALLERY_IDX = 0; PD_SIZE = null; PD_COLOR = null;
   const imgs = (p.images&&p.images.length)? p.images: null;
   const catIcon = (DATA.categories.find(c=>c.id===p.cat)||{}).icon || "🛍️";
   app.innerHTML = `
@@ -531,16 +574,18 @@ function renderProduct(id){
         </div>
         <div class="pd-info">
           <h1>${escapeHtml(p.name)}</h1>
-          <div class="pd-price">السعر: ${money(p.price)}</div>
+          <div class="pd-price" id="pdPrice">${pdPriceText(p)}</div>
           <div class="pd-shipping-note">السعر لا يشمل مصاريف الشحن</div>
           <div class="pd-desc">${escapeHtml(p.desc||"")}</div>
+          ${hasSizes(p)?`<div class="size-row"><span class="sl">المقاس</span><div class="size-chips">${p.sizes.map(z=>`<button type="button" class="size-chip" data-kind="size" data-val="${escapeHtml(String(z.size))}" onclick="pickOpt(this)">${escapeHtml(String(z.size))}</button>`).join("")}</div></div>`:""}
+          ${hasColors(p)?`<div class="size-row"><span class="sl">اللون</span><div class="size-chips">${p.colors.map(z=>`<button type="button" class="size-chip" data-kind="color" data-val="${escapeHtml(String(z.color))}" onclick="pickOpt(this)">${escapeHtml(String(z.color))}</button>`).join("")}</div></div>`:""}
           <div class="qty-row">
             <span style="font-weight:700;font-size:13.5px">الكمية</span>
             <div class="qty-box">
               <button onclick="stepQty(-1)">−</button><span id="pdQty">1</span><button onclick="stepQty(1)">+</button>
             </div>
           </div>
-          <button class="btn-primary" onclick="addToCart('${p.id}', getPdQty()); toast('تمت إضافة المنتج للسلة')">أضف إلى السلة</button>
+          <button class="btn-primary" onclick="pdAdd('${p.id}')">أضف إلى السلة</button>
         </div>
       </div>
     </main>
@@ -555,6 +600,38 @@ function videoEmbedHTML(url){
     return `<div class="pd-video"><iframe src="https://www.youtube.com/embed/${m[1]}" allowfullscreen></iframe></div>`;
   }
   return `<div class="pd-video"><video src="${escapeHtml(url)}" controls playsinline></video></div>`;
+}
+function pdPriceText(p){
+  const all=getVariants(p);
+  const vs=all.filter(v=>(!PD_SIZE||String(v.size)===PD_SIZE)&&(!PD_COLOR||String(v.color)===PD_COLOR));
+  const a=(vs.length?vs:all).map(v=>vPrice(p,v)); if(!a.length) a.push(p.price);
+  const mn=Math.min.apply(null,a), mx=Math.max.apply(null,a);
+  return "السعر: "+(mn!==mx?"يبدأ من ":"")+money(mn);
+}
+function pickOpt(btn){
+  const p = DATA.products.find(x=>x.id===GALLERY_PID); if(!p) return;
+  const kind = btn.getAttribute("data-kind"), val = btn.getAttribute("data-val");
+  if(kind==="size"){ PD_SIZE = val; if(PD_COLOR && !variantEntry(p,PD_SIZE,PD_COLOR)) PD_COLOR = null; }
+  else { PD_COLOR = val; if(PD_SIZE && !variantEntry(p,PD_SIZE,PD_COLOR)) PD_SIZE = null; }
+  document.querySelectorAll(".size-chip").forEach(b=>{
+    const k=b.getAttribute("data-kind"), v=b.getAttribute("data-val");
+    b.classList.toggle("on", k==="size" ? v===PD_SIZE : v===PD_COLOR);
+    let ok=true;   // خيار مش متاح مع الاختيار التاني: يتعتّم (وممكن تضغط عليه فيتغيّر الاختيار التاني)
+    if(k==="size" && hasColors(p) && PD_COLOR) ok=!!variantEntry(p,v,PD_COLOR);
+    if(k==="color" && hasSizes(p) && PD_SIZE) ok=!!variantEntry(p,PD_SIZE,v);
+    b.classList.toggle("dim", !ok);
+  });
+  const el = document.getElementById("pdPrice"); if(el) el.textContent = pdPriceText(p);
+}
+function pdAdd(id){
+  const p = DATA.products.find(x=>x.id===id); if(!p) return;
+  if(hasOptions(p)){
+    const needS = hasSizes(p) && !PD_SIZE, needC = hasColors(p) && !PD_COLOR;
+    if(needS || needC){ toast(needS&&needC ? "من فضلك اختر المقاس واللون أولًا" : (needS ? "من فضلك اختر المقاس أولًا" : "من فضلك اختر اللون أولًا")); return; }
+    if(!variantEntry(p,PD_SIZE,PD_COLOR)){ toast("هذه التركيبة غير متاحة، اختر مقاسًا ولونًا آخر"); return; }
+  }
+  addToCart(id, getPdQty(), hasSizes(p)?PD_SIZE:undefined, hasColors(p)?PD_COLOR:undefined);
+  toast("تمت إضافة المنتج للسلة");
 }
 function getPdQty(){ return parseInt(document.getElementById("pdQty").textContent||"1"); }
 function stepQty(d){ const el=document.getElementById("pdQty"); let v=parseInt(el.textContent)+d; if(v<1)v=1; el.textContent=v; }
@@ -573,17 +650,20 @@ function showLbImg(){
   const p = DATA.products.find(x=>x.id===GALLERY_PID);
   document.getElementById("lbImg").src = p.images[GALLERY_IDX];
   document.getElementById("lbCount").textContent = (GALLERY_IDX+1)+" / "+p.images.length;
-  document.getElementById("lbPrice").innerHTML = `<b>السعر: ${p.price} جنيه</b><small>السعر لا يشمل مصاريف الشحن</small>`;
+  document.getElementById("lbPrice").innerHTML = `<b>${pdPriceText(p)}</b><small>السعر لا يشمل مصاريف الشحن</small>`;
 }
-document.getElementById("lbClose").onclick=()=>document.getElementById("lightbox").classList.remove("open");
-document.getElementById("lightbox").onclick=(e)=>{ if(e.target.id==="lightbox") e.currentTarget.classList.remove("open"); };
+function closeLightbox(){ document.getElementById("lightbox").classList.remove("open"); }
+document.getElementById("lbClose").onclick=(e)=>{ e.stopPropagation(); closeLightbox(); };
+document.getElementById("lightbox").onclick=(e)=>{ if(e.target.closest("#lbImg, .lb-nav")) return; closeLightbox(); };
 document.getElementById("lbNext").onclick=()=>{ const p=DATA.products.find(x=>x.id===GALLERY_PID); GALLERY_IDX=(GALLERY_IDX+1)%p.images.length; showLbImg(); };
 document.getElementById("lbPrev").onclick=()=>{ const p=DATA.products.find(x=>x.id===GALLERY_PID); GALLERY_IDX=(GALLERY_IDX-1+p.images.length)%p.images.length; showLbImg(); };
 
 /* ================= CART ================= */
-function addToCart(id, qty){
-  const item = CART.find(c=>c.id===id);
-  if(item) item.qty += qty; else CART.push({id, qty});
+function addToCart(id, qty, size, color){
+  const sz = (size===undefined || size===null || size==="") ? "" : String(size);
+  const cl = (color===undefined || color===null || color==="") ? "" : String(color);
+  const item = CART.find(c=>c.id===id && String(c.size||"")===sz && String(c.color||"")===cl);
+  if(item) item.qty += qty; else { const o={id, qty}; if(sz) o.size=sz; if(cl) o.color=cl; CART.push(o); }
   saveCart();
 }
 function renderCartBadge(){
@@ -605,29 +685,30 @@ document.getElementById("closeCart").onclick=closeCartFn;
 
 function renderCartDrawer(){
   const body=document.getElementById("cartBody"), foot=document.getElementById("cartFoot");
-  const validCart = CART.filter(c=>DATA.products.some(p=>p.id===c.id));
+  const validCart = CART.filter(c=>cartValid(c));
   if(validCart.length!==CART.length){ CART=validCart; saveCart(); }
   if(!CART.length){
     body.innerHTML=`<div class="empty"><div class="e-ic">🛍️</div>السلة فارغة<br><a class="backlink" href="#/" onclick="closeCartFn()">تصفح المنتجات</a></div>`;
     foot.innerHTML=""; return;
   }
   let total=0;
-  body.innerHTML = CART.map(c=>{
+  body.innerHTML = CART.map((c,i)=>{
     const p = DATA.products.find(x=>x.id===c.id);
     if(!p) return "";
-    total += p.price*c.qty;
+    const up = unitPrice(p,c.size,c.color);
+    total += up*c.qty;
     const img = p.images&&p.images[0];
     return `<div class="cart-item">
       <div class="ci-thumb">${img?`<img src="${img}">`:( (DATA.categories.find(x=>x.id===p.cat)||{}).icon||'🛍️')}</div>
       <div class="ci-body">
-        <div class="ci-name">${escapeHtml(p.name)}</div>
+        <div class="ci-name">${escapeHtml(p.name)}${c.size?` — مقاس ${escapeHtml(String(c.size))}`:''}${c.color?` — لون ${escapeHtml(String(c.color))}`:''}</div>
         <div class="ci-row">
           <div class="qty-box">
-            <button onclick="changeQty('${c.id}',-1)">−</button><span>${c.qty}</span><button onclick="changeQty('${c.id}',1)">+</button>
+            <button onclick="changeQty(${i},-1)">−</button><span>${c.qty}</span><button onclick="changeQty(${i},1)">+</button>
           </div>
-          <b>${money(p.price*c.qty)}</b>
+          <b>${money(up*c.qty)}</b>
         </div>
-        <button class="ci-del" onclick="removeFromCart('${c.id}')">حذف</button>
+        <button class="ci-del" onclick="removeFromCart(${i})">حذف</button>
       </div>
     </div>`;
   }).join("");
@@ -635,12 +716,12 @@ function renderCartDrawer(){
     <div style="font-size:11.5px;color:var(--muted);margin-bottom:12px">السعر لا يشمل مصاريف الشحن</div>
     <button class="btn-primary" onclick="openCheckout()">إتمام الطلب</button>`;
 }
-function changeQty(id,d){
-  const it=CART.find(c=>c.id===id); if(!it) return;
-  it.qty+=d; if(it.qty<=0) CART=CART.filter(c=>c.id!==id);
+function changeQty(i,d){
+  const it=CART[i]; if(!it) return;
+  it.qty+=d; if(it.qty<=0) CART.splice(i,1);
   saveCart(); renderCartDrawer();
 }
-function removeFromCart(id){ CART=CART.filter(c=>c.id!==id); saveCart(); renderCartDrawer(); }
+function removeFromCart(i){ CART.splice(i,1); saveCart(); renderCartDrawer(); }
 
 /* ================= CHECKOUT + WHATSAPP ================= */
 function openCheckout(){
@@ -669,8 +750,9 @@ function submitOrder(){
   let total=0;
   const lines = CART.map(c=>{
     const p=DATA.products.find(x=>x.id===c.id); if(!p) return "";
-    total += p.price*c.qty;
-    return `${c.qty} × ${p.name} — ${p.price} جنيه`;
+    const up = unitPrice(p,c.size,c.color);
+    total += up*c.qty;
+    return `${c.qty} × ${p.name}${c.size?" — مقاس "+c.size:""}${c.color?" — لون "+c.color:""} — ${up} جنيه`;
   }).filter(Boolean).join("\n");
 
   const msg = `مرحبًا ${STORE_NAME} 👋\n\nأرغب في تأكيد الطلب:\n\nرقم الطلب:\n#${orderNo}\n\nالاسم:\n${name}\n\nرقم الموبايل:\n${phone}\n\nالعنوان:\n${addr}\n\nتفاصيل الطلب:\n${lines}\n\nإجمالي المنتجات:\n${total} جنيه\n\nمصاريف الشحن:\nيتم تحديدها لاحقًا\n\nالإجمالي قبل الشحن:\n${total} جنيه\n\nشكرًا لكم.`;
@@ -798,6 +880,7 @@ function renderAdminExcel(){
         ارفع نفس ملف إكسل بتاعك (نفس تنسيق شيت "تسعير المنتجات" وشيت "Lists"). النظام بيقرأ منه فقط (Read-Only) ولا يعدّل أي شيء داخل الملف نفسه.<br>
         • المنتج اللي اسمه موجود بالفعل في المتجر: هيتحدث سعره وتصنيفه فقط (صوره ووصفه هيفضلوا زي ما هما).<br>
         • المنتج الجديد: هيتضاف تلقائيًا (تقدر تضيفله صور بعدين من تبويب المنتجات).<br>
+        • المنتج اللي له مقاسات و/أو ألوان في الإكسيل (عمودا "المقاس" و"اللون" في شيت تسعير المنتجات) بيتضاف كمنتج واحد، والعميل بيختار المقاس واللون من صفحة المنتج.<br>
         • مفيش أي منتج بيتحذف تلقائيًا من المتجر.
       </p>
       <div class="upload-box" style="width:100%"><input type="file" id="excelFile" accept=".xlsx,.xls"></div>
@@ -815,7 +898,7 @@ async function handleExcelFile(file){
     const prodSheetName = wb.SheetNames.find(n=>n.includes("تسعير")) || wb.SheetNames.find(n=>n.includes("منتج"));
     if(!prodSheetName){ status.textContent="لم يتم العثور على شيت المنتجات (تسعير المنتجات) في هذا الملف."; return; }
     const rows = XLSX.utils.sheet_to_json(wb.Sheets[prodSheetName], {header:1, defval:null});
-    let headerIdx=-1, colName=-1, colCat=-1, colPrice=-1;
+    let headerIdx=-1, colName=-1, colCat=-1, colPrice=-1, colSize=-1, colColor=-1;
     for(let i=0;i<Math.min(rows.length,8);i++){
       const row = rows[i]||[];
       const ni = row.findIndex(c=>String(c||"").trim()==="اسم المنتج");
@@ -823,6 +906,8 @@ async function handleExcelFile(file){
         headerIdx=i; colName=ni;
         colCat = row.findIndex(c=>String(c||"").trim()==="الكاتيجري");
         colPrice = row.findIndex(c=>String(c||"").includes("سعر البيع"));
+        colSize = row.findIndex(c=>String(c||"").trim().startsWith("المقاس"));
+        colColor = row.findIndex(c=>String(c||"").trim().startsWith("اللون"));
         break;
       }
     }
@@ -836,6 +921,26 @@ async function handleExcelFile(file){
         DATA.categories.push(c); newCats++; }
       return c.id;
     }
+    // شيل الجزء الأخير من الاسم لو هو المقاس أو اللون: "كوتشي موديل A - 40 - أسود" ← "كوتشي موديل A"
+    function stripTail(full,val){
+      const t=String(full).trim(), z=String(val).trim();
+      if(!z || t.length<=z.length || t.slice(-z.length).toLowerCase()!==z.toLowerCase()) return t;
+      let x=t.slice(0,t.length-z.length).trim();
+      if(x.endsWith("-")) x=x.slice(0,-1).trim();
+      return x||t;
+    }
+    function baseName(full,size,color){
+      let t=String(full).trim();
+      for(let k=0;k<2;k++){
+        const before=t;
+        if(color) t=stripTail(t,color);
+        if(t===before && size) t=stripTail(t,size);
+        if(t===before) break;
+      }
+      return t;
+    }
+    const minPos = arr => { const a=arr.filter(x=>x>0); return a.length ? Math.min.apply(null,a) : 0; };
+    const groups=[], gmap={};
     for(let i=headerIdx+1;i<rows.length;i++){
       const row=rows[i]||[];
       const name=row[colName];
@@ -843,13 +948,50 @@ async function handleExcelFile(file){
       const catName = colCat>-1? row[colCat] : null;
       const price = colPrice>-1? (parseFloat(row[colPrice])||0) : 0;
       const catId = ensureCat(catName) || (DATA.categories[0] && DATA.categories[0].id);
-      const nm = String(name).trim();
-      const existing = DATA.products.find(p=>p.name.trim()===nm);
-      if(existing){ existing.cat=catId; existing.price=price; existing.demo=false; updProds++; }
-      else{ DATA.products.push({id:"p"+Date.now()+Math.floor(Math.random()*999), name:nm, cat:catId, price, desc:"", images:[], video:"", demo:false, fromExcel:true}); newProds++; }
+      const full = String(name).trim();
+      const size = (colSize>-1 && row[colSize]!=null) ? String(row[colSize]).trim() : "";
+      const color = (colColor>-1 && row[colColor]!=null) ? String(row[colColor]).trim() : "";
+      const base = (size||color) ? baseName(full,size,color) : full;
+      let g = gmap[base];
+      if(!g){ g={name:base, catId, price, variants:[], fulls:[]}; gmap[base]=g; groups.push(g); }
+      if(size||color){
+        if(!g.variants.some(v=>v.size===size && v.color===color)) g.variants.push({size, color, price});
+        g.fulls.push(full);
+      }
+      else { g.price = price; }
     }
+    let sized=0, merged=0, incomplete=0;
+    groups.forEach(g=>{
+      if(g.variants.length){
+        g.price = minPos(g.variants.map(v=>v.price)) || g.price;
+        g.variants.forEach(v=>{ if(!(v.price>0)) v.price=g.price; });
+        const sizeList=[], colorList=[];
+        g.variants.forEach(v=>{ if(v.size && !sizeList.includes(v.size)) sizeList.push(v.size); if(v.color && !colorList.includes(v.color)) colorList.push(v.color); });
+        g.sizes = sizeList.map(z=>({size:z, price:minPos(g.variants.filter(v=>v.size===z).map(v=>v.price)) || g.price}));
+        g.colors = colorList.map(c=>({color:c, price:minPos(g.variants.filter(v=>v.color===c).map(v=>v.price)) || g.price}));
+        // لو الموديل له مقاسات وألوان: كل صف لازم يكون فيه الاتنين، وإلا الصف ده مش هيتعرض
+        incomplete += g.variants.filter(v=>(sizeList.length && !v.size) || (colorList.length && !v.color)).length;
+        // منتجات اتسجلت قبل كده كل مقاس/لون منها كمنتج مستقل: بتتدمج في المنتج الواحد
+        const before=DATA.products.length;
+        DATA.products = DATA.products.filter(p=>!(p.fromExcel && g.fulls.includes(String(p.name).trim())));
+        merged += before-DATA.products.length; sized++;
+      }
+      const existing = DATA.products.find(p=>p.name.trim()===g.name);
+      const applyOpts = (o)=>{
+        if(!g.variants.length) return;
+        if(g.sizes.length) o.sizes=g.sizes; else delete o.sizes;
+        if(g.colors.length) o.colors=g.colors; else delete o.colors;
+        if(g.sizes.length && g.colors.length) o.variants=g.variants; else delete o.variants;
+      };
+      if(existing){ existing.cat=g.catId; existing.price=g.price; existing.demo=false; applyOpts(existing); updProds++; }
+      else{
+        const np={id:"p"+Date.now()+Math.floor(Math.random()*999), name:g.name, cat:g.catId, price:g.price, desc:"", images:[], video:"", demo:false, fromExcel:true};
+        applyOpts(np);
+        DATA.products.push(np); newProds++;
+      }
+    });
     saveData(DATA);
-    status.textContent = `تم الاستيراد بنجاح: ${newProds} منتج جديد، ${updProds} منتج تم تحديثه، ${newCats} تصنيف جديد.`;
+    status.textContent = `تم الاستيراد بنجاح: ${newProds} منتج جديد، ${updProds} منتج تم تحديثه، ${newCats} تصنيف جديد.` + (sized? ` (${sized} منتج بمقاسات/ألوان${merged? "، ودمجنا "+merged+" منتج كانوا مسجلين قبل كده كمنتجات منفصلة":""})`:"") + (incomplete? ` ⚠ فيه ${incomplete} صف ناقص المقاس أو اللون في موديل له مقاسات وألوان — الصفوف دي مش هتظهر للعميل، كمّل بياناتها في الإكسيل.`:"");
     toast("تم تحديث بيانات المتجر من الإكسل");
   }catch(e){
     console.error(e);
@@ -862,7 +1004,7 @@ function renderAdminProducts(){
   m.innerHTML = `<p style="color:var(--muted);font-size:12.5px;margin:0 0 12px">إجمالي ${DATA.products.length} منتج. اضغط + لإضافة منتج جديد.</p>` +
     DATA.products.map(p=>`<div class="admin-row">
       <div class="at">${p.images&&p.images[0]?`<img src="${p.images[0]}">`:'🛍️'}</div>
-      <div class="ainfo"><b>${escapeHtml(p.name)}</b><small>${money(p.price)} · ${(DATA.categories.find(c=>c.id===p.cat)||{}).name||''}</small></div>
+      <div class="ainfo"><b>${escapeHtml(p.name)}</b><small>${money(priceFrom(p))} · ${(DATA.categories.find(c=>c.id===p.cat)||{}).name||''}${hasSizes(p)?' · '+p.sizes.length+' مقاس':''}${hasColors(p)?' · '+p.colors.length+' لون':''}</small></div>
       <div class="aactions">
         <button class="mini-btn" onclick="openProductForm('${p.id}')">تعديل</button>
         <button class="mini-btn danger" onclick="deleteProduct('${p.id}')">حذف</button>
@@ -888,6 +1030,8 @@ function openProductForm(id){
       </select>
     </div>
     <div class="field"><label>السعر (جنيه)</label><input id="pfPrice" type="number" value="${p.price}"></div>
+    <div class="field"><label>المقاسات — اختياري (اكتبها مفصولة بفاصلة، مثال: 40, 41, 42)</label><input id="pfSizes" value="${escapeHtml((p.sizes||[]).map(z=>z.size).join(', '))}"></div>
+    <div class="field"><label>الألوان — اختياري (اكتبها مفصولة بفاصلة، مثال: أسود, أبيض, بيج)</label><input id="pfColors" value="${escapeHtml((p.colors||[]).map(z=>z.color).join(', '))}"></div>
     <div class="field"><label>الوصف</label><textarea id="pfDesc" rows="3">${escapeHtml(p.desc||"")}</textarea></div>
     <div class="field"><label>رابط فيديو (يوتيوب أو رابط مباشر) — اختياري</label><input id="pfVideo" value="${escapeHtml(p.video||"")}"></div>
     <div class="field"><label>صور المنتج (يمكن اختيار أكثر من صورة)</label>
@@ -907,15 +1051,34 @@ function removeEditingImg(i){ window._editingImages.splice(i,1); document.getEle
 function saveProductForm(id, isEdit){
   const name = document.getElementById("pfName").value.trim();
   if(!name){ toast("أدخل اسم المنتج"); return; }
+  const newPrice = parseFloat(document.getElementById("pfPrice").value)||0;
+  const oldP = isEdit ? (DATA.products.find(x=>x.id===id)||{}) : {};
+  const keepOwn = priceVaries(oldP);   // لو أسعار المقاسات مختلفة نحافظ عليها، وإلا كل المقاسات ياخدوا السعر الجديد
+  const parseList = id => document.getElementById(id).value.split(/[,،]/).map(z=>z.trim()).filter(Boolean).filter((z,i,a)=>a.indexOf(z)===i);
+  const sizeList = parseList("pfSizes"), colorList = parseList("pfColors");
+  const minOf = arr => Math.min.apply(null,arr);
+  let sizes=[], colors=[], variants=null;
+  if(sizeList.length && colorList.length){
+    variants=[];
+    sizeList.forEach(z=>colorList.forEach(c=>{ const e = keepOwn ? (variantEntry(oldP,z,c) || sizeEntry(oldP,z) || colorEntry(oldP,c)) : null; variants.push({size:z, color:c, price:(e && e.price>0) ? e.price : newPrice}); }));
+    sizes = sizeList.map(z=>({size:z, price:minOf(variants.filter(v=>v.size===z).map(v=>v.price))}));
+    colors = colorList.map(c=>({color:c, price:minOf(variants.filter(v=>v.color===c).map(v=>v.price))}));
+  } else {
+    sizes = sizeList.map(z=>{ const e = keepOwn ? sizeEntry(oldP,z) : null; return {size:z, price:(e && e.price>0) ? e.price : newPrice}; });
+    colors = colorList.map(c=>{ const e = keepOwn ? colorEntry(oldP,c) : null; return {color:c, price:(e && e.price>0) ? e.price : newPrice}; });
+  }
   const obj = {
     id, name,
     cat: document.getElementById("pfCat").value,
-    price: parseFloat(document.getElementById("pfPrice").value)||0,
+    price: newPrice,
     desc: document.getElementById("pfDesc").value.trim(),
     video: document.getElementById("pfVideo").value.trim(),
     images: (window._editingImages||[]).slice(),
     demo:false
   };
+  if(sizes.length) obj.sizes = sizes;
+  if(colors.length) obj.colors = colors;
+  if(variants) obj.variants = variants;
   if(isEdit){ const i=DATA.products.findIndex(p=>p.id===id); DATA.products[i]=obj; }
   else DATA.products.push(obj);
   saveData(DATA); closeModal(); renderAdminProducts(); toast("تم حفظ المنتج");
