@@ -101,8 +101,12 @@ main{max-width:1180px;margin:0 auto;padding:6px 18px 70px}
 .gallery-thumbs .gt{width:62px;height:62px;flex:none;border-radius:10px;overflow:hidden;border:2px solid transparent;background:var(--navy)}
 .gallery-thumbs .gt.active{border-color:var(--copper)}
 .gallery-thumbs .gt img{width:100%;height:100%;object-fit:cover}
-.pd-video{margin-top:14px;border-radius:14px;overflow:hidden;background:#000}
+.pd-video{margin-top:14px;border-radius:14px;overflow:hidden;background:#000;position:relative;cursor:zoom-in}
 .pd-video video,.pd-video iframe{width:100%;display:block;aspect-ratio:16/9;border:none}
+.pd-video video,.pd-video iframe{pointer-events:none}
+.pd-video.fbv{max-width:320px;margin-left:auto;margin-right:auto}
+.pd-video.fbv iframe{aspect-ratio:9/16}
+.pd-video .vz{position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,.55);color:#fff;border-radius:8px;padding:3px 9px;font-size:12px;font-weight:700;pointer-events:none}
 .pd-info h1{font-size:22px;margin:0 0 8px;font-weight:800}
 .pd-price{font-size:26px;font-weight:800;color:var(--copper);margin:4px 0 2px}
 .pd-shipping-note{font-size:12.5px;color:var(--muted);margin-bottom:16px}
@@ -135,6 +139,13 @@ main{max-width:1180px;margin:0 auto;padding:6px 18px 70px}
 .lightbox .lb-price{pointer-events:none;position:absolute;top:calc(env(safe-area-inset-top,0px) + 16px);right:0;left:0;text-align:center;color:#fff}
 .lightbox .lb-price b{display:block;font-size:17px;color:var(--copper-2)}
 .lightbox .lb-price small{font-size:11.5px;opacity:.75}
+.lightbox #lbVideoBox{display:none;width:min(94vw,900px)}
+.lightbox.vmode #lbVideoBox{display:block}
+.lightbox.vmode #lbImg{display:none}
+.lightbox #lbVideoBox iframe.fbv{aspect-ratio:9/16;height:min(80vh,167vw);width:auto;max-width:100%;margin:0 auto}
+.lightbox.vmode .lb-nav{z-index:6}
+.lightbox #lbVideoBox video{width:100%;max-height:80vh;object-fit:contain;background:#000;border-radius:8px;display:block}
+.lightbox #lbVideoBox iframe{width:100%;aspect-ratio:16/9;max-height:80vh;border:none;background:#000;border-radius:8px;display:block}
 
 /* cart drawer */
 .overlay{position:fixed;inset:0;background:rgba(10,12,18,.5);z-index:100;display:none}
@@ -214,6 +225,15 @@ footer.foot{text-align:center;padding:26px 18px calc(26px + env(safe-area-inset-
   width:18px;height:18px;border-radius:50%;font-size:11px;line-height:1}
 .upload-box{border:1.5px dashed var(--border);border-radius:12px;padding:14px;text-align:center;font-size:12.5px;color:var(--muted);margin-bottom:12px}
 .upload-box input{margin-top:8px}
+.vid-list{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.vid-list .vi{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--cream);font-size:12.5px}
+.vid-list .vi .vn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vid-list .vi button{flex:none;background:rgba(176,65,62,.9);color:#fff;border:none;border-radius:6px;width:24px;height:24px;line-height:1;font-size:12px}
+.vid-add{display:flex;gap:8px;align-items:stretch}
+.vid-add input{flex:1;min-width:0}
+.vid-add button{flex:none;width:auto;padding:0 16px}
+.vid-add select,.vid-list .vi select{flex:none;width:auto;padding:0 8px;border-radius:10px;border:1px solid var(--border);background:var(--paper);color:var(--ink);font-family:inherit;font-size:12.5px}
+.vid-list .vi select{padding:3px 6px;border-radius:8px}
 .hidden{display:none!important}
 .close-x{float:left;background:none;border:none;font-size:20px;color:var(--muted)}
 </style>
@@ -227,6 +247,7 @@ footer.foot{text-align:center;padding:26px 18px calc(26px + env(safe-area-inset-
   <button class="lb-close" id="lbClose">✕</button>
   <button class="lb-nav lb-prev" id="lbPrev">›</button>
   <img id="lbImg" src="">
+  <div id="lbVideoBox"></div>
   <button class="lb-nav lb-next" id="lbNext">‹</button>
   <div class="lb-count" id="lbCount"></div>
   <div class="lb-price" id="lbPrice"></div>
@@ -307,7 +328,8 @@ function snapshotFullHTML(newData){
   const clone = document.documentElement.cloneNode(true);
   const app = clone.querySelector("#app"); if(app) app.innerHTML = "";
   ["cartOverlay","cartDrawer","modalOverlay","lightbox"].forEach(id=>{ const el=clone.querySelector("#"+id); if(el) el.classList.remove("open"); });
-  ["modalBody","cartBody","cartFoot","lbCount","lbPrice"].forEach(id=>{ const el=clone.querySelector("#"+id); if(el) el.innerHTML=""; });
+  const lbx = clone.querySelector("#lightbox"); if(lbx) lbx.classList.remove("vmode");
+  ["modalBody","cartBody","cartFoot","lbCount","lbPrice","lbVideoBox"].forEach(id=>{ const el=clone.querySelector("#"+id); if(el) el.innerHTML=""; });
   const lb = clone.querySelector("#lbImg"); if(lb) lb.setAttribute("src","");
   const t = clone.querySelector("#toast"); if(t){ t.textContent=""; t.classList.remove("show"); }
   const dataEl = clone.querySelector("#storeDataJSON"); if(dataEl) dataEl.textContent = json;
@@ -570,7 +592,7 @@ function renderProduct(id){
             ${imgs? `<img id="galMainImg" src="${imgs[0]}">` : `<div class="ph">${catIcon}</div>`}
           </div>
           ${imgs&&imgs.length>1? `<div class="gallery-thumbs">${imgs.map((im,i)=>`<div class="gt ${i===0?'active':''}" data-i="${i}" onclick="setGalleryImg(${i})"><img src="${im}"></div>`).join("")}</div>`:""}
-          ${p.video? videoEmbedHTML(p.video):""}
+          ${getVideos(p).map((v,i)=>videoEmbedHTML(v,i)).join("")}
         </div>
         <div class="pd-info">
           <h1>${escapeHtml(p.name)}</h1>
@@ -591,15 +613,66 @@ function renderProduct(id){
     </main>
     <footer class="foot">© ${new Date().getFullYear()} ${STORE_NAME} — Just For You<br><a href="#/admin" style="font-size:11px;color:var(--muted);text-decoration:underline">لوحة التحكم</a></footer>
   `;
-  wireHeader();
+  wireHeader(); kickVideos();
 }
-function videoEmbedHTML(url){
-  if(/youtu\.?be/.test(url)){
-    const m = url.match(/[?&]v=([\w-]{6,})/) || url.match(/youtu\.be\/([\w-]{6,})/) || url.match(/youtube\.com\/(?:shorts|embed|live)\/([\w-]{6,})/);
-    if(!m) return "";
-    return `<div class="pd-video"><iframe src="https://www.youtube.com/embed/${m[1]}" allowfullscreen></iframe></div>`;
+function getVideos(p){
+  if(!p) return [];
+  if(Array.isArray(p.videos) && p.videos.length) return p.videos.filter(v=>typeof v==="string" && v.trim());
+  return (typeof p.video==="string" && p.video.trim()) ? [p.video.trim()] : [];
+}
+/* روابط فيسبوك (فيديو عام فقط): بنحوّلها لمشغّل فيسبوك المدمج */
+function fbHref(url){
+  let u = String(url||"").trim().replace(/#jfy=[vh]$/,"");
+  if(!/^https?:\/\//i.test(u)) u = "https://"+u.replace(/^\/+/,"");
+  const m = u.match(/^https?:\/\/([^\/?#]+)/i); if(!m) return null;
+  const host = m[1].toLowerCase().replace(/:\d+$/,"");
+  if(!/(^|\.)(facebook\.com|fb\.watch|fb\.com)$/.test(host)) return null;
+  if(/(^|\.)facebook\.com$/.test(host)) u = u.replace(/^(https?:\/\/)[^\/?#]+/i, "$1www.facebook.com");
+  return u;
+}
+/* اتجاه فيديو فيسبوك: "v" طولي أو "h" عرضي. بيتحدد من اختيارك في لوحة التحكم (محفوظ مع الرابط)، ولو "تلقائي" بنعتمد على نوع الرابط (Reels/Stories = طولي) */
+function fbMode(url){ const m=String(url||"").match(/#jfy=([vh])$/); return m ? m[1] : "a"; }
+function fbOri(url){
+  const m = fbMode(url); if(m!=="a") return m;
+  return /facebook\.com\/(?:reels?|stories)\//i.test(url) || /facebook\.com\/share\/r\//i.test(url) ? "v" : "h";
+}
+function setFbOri(url, mode){ const base=String(url||"").replace(/#jfy=[vh]$/,""); return (mode==="v"||mode==="h") ? base+"#jfy="+mode : base; }
+function fbSrc(href, ori){ return "https://www.facebook.com/plugins/video.php?href="+encodeURIComponent(href)+"&show_text=false&autoplay=true&allowfullscreen=true&"+(ori==="v" ? "width=360&height=640" : "width=560"); }
+function ytId(url){
+  if(!/youtu\.?be/.test(url)) return null;
+  const m = url.match(/[?&]v=([\w-]{6,})/) || url.match(/youtu\.be\/([\w-]{6,})/) || url.match(/youtube\.com\/(?:shorts|embed|live)\/([\w-]{6,})/);
+  return m ? m[1] : "";
+}
+/* الفيديو داخل صفحة المنتج: تشغيل تلقائي ومستمر (بدون صوت) والضغط عليه يكبّره */
+function videoEmbedHTML(url, i){
+  const fb = fbHref(url);
+  if(fb){
+    const o = fbOri(url);
+    return `<div class="pd-video${o==="v"?" fbv":""}" onclick="openVideoLightbox(${i})"><iframe src="${fbSrc(fb,o)}" allow="autoplay; encrypted-media; picture-in-picture; web-share" scrolling="no" tabindex="-1"></iframe><span class="vz">⤢ تكبير</span></div>`;
   }
-  return `<div class="pd-video"><video src="${escapeHtml(url)}" controls playsinline></video></div>`;
+  const yt = ytId(url);
+  if(yt !== null){
+    if(!yt) return "";
+    return `<div class="pd-video" onclick="openVideoLightbox(${i})"><iframe src="https://www.youtube.com/embed/${yt}?autoplay=1&mute=1&loop=1&playlist=${yt}&controls=0&playsinline=1&rel=0&modestbranding=1" allow="autoplay; encrypted-media" tabindex="-1"></iframe><span class="vz">⤢ تكبير</span></div>`;
+  }
+  return `<div class="pd-video" onclick="openVideoLightbox(${i})"><video src="${escapeHtml(url)}" autoplay muted loop playsinline webkit-playsinline preload="auto"></video><span class="vz">⤢ تكبير</span></div>`;
+}
+/* الفيديو داخل التكبير: بأزرار تحكم */
+function videoPlayerHTML(url){
+  const fb = fbHref(url);
+  if(fb){
+    const o = fbOri(url);
+    return `<iframe${o==="v"?' class="fbv"':''} src="${fbSrc(fb,o)}" allow="autoplay; encrypted-media; picture-in-picture; web-share; fullscreen" allowfullscreen scrolling="no"></iframe>`;
+  }
+  const yt = ytId(url);
+  if(yt !== null){
+    if(!yt) return "";
+    return `<iframe src="https://www.youtube.com/embed/${yt}?autoplay=1&loop=1&playlist=${yt}&playsinline=1&rel=0" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>`;
+  }
+  return `<video src="${escapeHtml(url)}" controls autoplay loop playsinline></video>`;
+}
+function kickVideos(){
+  document.querySelectorAll(".pd-video video").forEach(v=>{ v.muted = true; v.loop = true; const pr = v.play(); if(pr && pr.catch) pr.catch(()=>{}); });
 }
 function pdPriceText(p){
   const all=getVariants(p);
@@ -611,8 +684,8 @@ function pdPriceText(p){
 function pickOpt(btn){
   const p = DATA.products.find(x=>x.id===GALLERY_PID); if(!p) return;
   const kind = btn.getAttribute("data-kind"), val = btn.getAttribute("data-val");
-  if(kind==="size"){ PD_SIZE = val; if(PD_COLOR && !variantEntry(p,PD_SIZE,PD_COLOR)) PD_COLOR = null; }
-  else { PD_COLOR = val; if(PD_SIZE && !variantEntry(p,PD_SIZE,PD_COLOR)) PD_SIZE = null; }
+  if(kind==="size"){ PD_SIZE = (PD_SIZE===val) ? null : val; if(PD_SIZE && PD_COLOR && !variantEntry(p,PD_SIZE,PD_COLOR)) PD_COLOR = null; }
+  else { PD_COLOR = (PD_COLOR===val) ? null : val; if(PD_COLOR && PD_SIZE && !variantEntry(p,PD_SIZE,PD_COLOR)) PD_SIZE = null; }
   document.querySelectorAll(".size-chip").forEach(b=>{
     const k=b.getAttribute("data-kind"), v=b.getAttribute("data-val");
     b.classList.toggle("on", k==="size" ? v===PD_SIZE : v===PD_COLOR);
@@ -640,10 +713,15 @@ function setGalleryImg(i){
   GALLERY_IDX=i; document.getElementById("galMainImg").src = p.images[i];
   document.querySelectorAll(".gt").forEach((el,idx)=>el.classList.toggle("active", idx===i));
 }
+let LB_MODE = "img", LB_VIDX = 0;
+function lbResetNav(){ ["lbPrev","lbNext"].forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display=""; }); }
 function openLightbox(){
   const p = DATA.products.find(x=>x.id===GALLERY_PID);
   if(!p || !p.images || !p.images.length) return;
-  document.getElementById("lightbox").classList.add("open");
+  LB_MODE = "img";
+  const lb = document.getElementById("lightbox");
+  lb.classList.remove("vmode"); document.getElementById("lbVideoBox").innerHTML = ""; lbResetNav();
+  lb.classList.add("open");
   showLbImg();
 }
 function showLbImg(){
@@ -652,11 +730,43 @@ function showLbImg(){
   document.getElementById("lbCount").textContent = (GALLERY_IDX+1)+" / "+p.images.length;
   document.getElementById("lbPrice").innerHTML = `<b>${pdPriceText(p)}</b><small>السعر لا يشمل مصاريف الشحن</small>`;
 }
-function closeLightbox(){ document.getElementById("lightbox").classList.remove("open"); }
+function openVideoLightbox(i){
+  const p = DATA.products.find(x=>x.id===GALLERY_PID);
+  const vs = getVideos(p); if(!vs.length) return;
+  LB_MODE = "vid"; LB_VIDX = Math.min(Math.max(parseInt(i)||0,0), vs.length-1);
+  const lb = document.getElementById("lightbox");
+  lb.classList.add("vmode"); lb.classList.add("open");
+  showLbVid();
+}
+function showLbVid(){
+  const p = DATA.products.find(x=>x.id===GALLERY_PID);
+  const vs = getVideos(p), box = document.getElementById("lbVideoBox");
+  box.innerHTML = videoPlayerHTML(vs[LB_VIDX]);
+  const v = box.querySelector("video");
+  if(v){ v.muted = false; const pr = v.play(); if(pr && pr.catch) pr.catch(()=>{ v.muted = true; const p2 = v.play(); if(p2 && p2.catch) p2.catch(()=>{}); }); }
+  document.getElementById("lbCount").textContent = vs.length>1 ? (LB_VIDX+1)+" / "+vs.length : "";
+  document.getElementById("lbPrice").innerHTML = `<b>${pdPriceText(p)}</b><small>السعر لا يشمل مصاريف الشحن</small>`;
+  ["lbPrev","lbNext"].forEach(id=>{ document.getElementById(id).style.display = vs.length>1 ? "" : "none"; });
+}
+function closeLightbox(){
+  const lb = document.getElementById("lightbox");
+  lb.classList.remove("open"); lb.classList.remove("vmode");
+  document.getElementById("lbVideoBox").innerHTML = "";   // يوقف تشغيل الفيديو
+  LB_MODE = "img"; lbResetNav();
+}
+window.addEventListener("hashchange", closeLightbox);
 document.getElementById("lbClose").onclick=(e)=>{ e.stopPropagation(); closeLightbox(); };
-document.getElementById("lightbox").onclick=(e)=>{ if(e.target.closest("#lbImg, .lb-nav")) return; closeLightbox(); };
-document.getElementById("lbNext").onclick=()=>{ const p=DATA.products.find(x=>x.id===GALLERY_PID); GALLERY_IDX=(GALLERY_IDX+1)%p.images.length; showLbImg(); };
-document.getElementById("lbPrev").onclick=()=>{ const p=DATA.products.find(x=>x.id===GALLERY_PID); GALLERY_IDX=(GALLERY_IDX-1+p.images.length)%p.images.length; showLbImg(); };
+document.getElementById("lightbox").onclick=(e)=>{ if(e.target.closest("#lbImg, #lbVideoBox, .lb-nav")) return; closeLightbox(); };
+document.getElementById("lbNext").onclick=()=>{
+  const p=DATA.products.find(x=>x.id===GALLERY_PID);
+  if(LB_MODE==="vid"){ const n=getVideos(p).length; if(n<2) return; LB_VIDX=(LB_VIDX+1)%n; showLbVid(); return; }
+  GALLERY_IDX=(GALLERY_IDX+1)%p.images.length; showLbImg();
+};
+document.getElementById("lbPrev").onclick=()=>{
+  const p=DATA.products.find(x=>x.id===GALLERY_PID);
+  if(LB_MODE==="vid"){ const n=getVideos(p).length; if(n<2) return; LB_VIDX=(LB_VIDX-1+n)%n; showLbVid(); return; }
+  GALLERY_IDX=(GALLERY_IDX-1+p.images.length)%p.images.length; showLbImg();
+};
 
 /* ================= CART ================= */
 function addToCart(id, qty, size, color){
@@ -1020,6 +1130,8 @@ function openProductForm(id){
   if(!id && !DATA.categories.length){ toast("أضف تصنيف واحد على الأقل قبل إضافة منتج"); return; }
   const p = id? DATA.products.find(x=>x.id===id) : {id:"p"+Date.now(), name:"", cat:DATA.categories[0].id, price:0, desc:"", images:[], video:"", demo:false};
   window._editingImages = (p.images||[]).slice();
+  window._editingVideos = getVideos(p).slice();
+  window._editingOld = id ? p : null;
   openModal(`
     <button class="close-x" onclick="closeModal()">✕</button>
     <h3>${id?"تعديل منتج":"إضافة منتج جديد"}</h3>
@@ -1033,7 +1145,11 @@ function openProductForm(id){
     <div class="field"><label>المقاسات — اختياري (اكتبها مفصولة بفاصلة، مثال: 40, 41, 42)</label><input id="pfSizes" value="${escapeHtml((p.sizes||[]).map(z=>z.size).join(', '))}"></div>
     <div class="field"><label>الألوان — اختياري (اكتبها مفصولة بفاصلة، مثال: أسود, أبيض, بيج)</label><input id="pfColors" value="${escapeHtml((p.colors||[]).map(z=>z.color).join(', '))}"></div>
     <div class="field"><label>الوصف</label><textarea id="pfDesc" rows="3">${escapeHtml(p.desc||"")}</textarea></div>
-    <div class="field"><label>رابط فيديو (يوتيوب أو رابط مباشر) — اختياري</label><input id="pfVideo" value="${escapeHtml(p.video||"")}"></div>
+    <div class="field"><label>فيديوهات المنتج — اختياري (رابط يوتيوب/رابط مباشر أو فيديو من الجهاز، ويمكن إضافة أكثر من فيديو)</label>
+      <div class="vid-list" id="pfVids">${renderVidList()}</div>
+      <div class="vid-add"><input id="pfVideo" placeholder="الصق رابط الفيديو هنا" dir="ltr"><select id="pfVideoOri" style="display:none" title="اتجاه فيديو فيسبوك"><option value="a">تلقائي</option><option value="v">طولي</option><option value="h">عرضي</option></select><button type="button" class="mini-btn" onclick="addVideoUrl()">إضافة</button></div>
+      <div class="upload-box" style="margin-top:10px"><input type="file" id="pfVidUpload" accept="video/*" multiple><div id="pfVidRoom" style="margin-top:6px">${vidRoomText()}</div></div>
+    </div>
     <div class="field"><label>صور المنتج (يمكن اختيار أكثر من صورة)</label>
       <div class="img-thumbs" id="pfImgs">${renderImgThumbs()}</div>
       <div class="upload-box"><input type="file" id="pfUpload" accept="image/*" multiple></div>
@@ -1043,11 +1159,71 @@ function openProductForm(id){
   document.getElementById("pfUpload").onchange = (e)=>{
     [...e.target.files].forEach(f=>resizeImage(f,900,(dataUrl)=>{ window._editingImages.push(dataUrl); document.getElementById("pfImgs").innerHTML=renderImgThumbs(); }));
   };
+  document.getElementById("pfVidUpload").onchange = (e)=>{ handleVideoFiles(e.target.files); e.target.value=""; };
+  document.getElementById("pfVideo").onkeydown = (e)=>{ if(e.key==="Enter"){ e.preventDefault(); addVideoUrl(); } };
+  document.getElementById("pfVideo").oninput = syncVidOriSel;
 }
 function renderImgThumbs(){
   return (window._editingImages||[]).map((im,i)=>`<div class="it"><img src="${im}"><button onclick="removeEditingImg(${i})">✕</button></div>`).join("");
 }
 function removeEditingImg(i){ window._editingImages.splice(i,1); document.getElementById("pfImgs").innerHTML=renderImgThumbs(); }
+/* حد حجم بيانات المتجر كاملة (صور + فيديوهات + نصوص) عشان النشر يفضل شغال: ملف النشر أقصاه 16MB */
+const STORE_MAX_CHARS = 15500000;
+function storeRoomChars(){   // المساحة المتبقية للمنتج اللي بيتعدّل (بالحروف)
+  const old = window._editingOld ? JSON.stringify(window._editingOld).length : 0;
+  const base = JSON.stringify(DATA).length - old;
+  const sum = a => (a||[]).reduce((t,x)=>t+String(x).length+3,0);
+  return STORE_MAX_CHARS - base - sum(window._editingImages) - sum(window._editingVideos) - 8000;
+}
+function maxUploadMB(){ return Math.max(0, Math.floor((storeRoomChars()-40)/4*3/104857.6)/10); }
+function vidRoomText(){ const m=maxUploadMB(); return m>0 ? ("أقصى حجم لفيديو تقدر ترفعه من الجهاز دلوقتي: حوالي "+m.toFixed(1)+" MB — للفيديوهات الأكبر استخدم رابط") : "مفيش مساحة كافية لرفع فيديو من الجهاز — استخدم رابط فيديو أو احذف صور/فيديوهات"; }
+function videoDataLen(arr){ return (arr||[]).reduce((s,v)=>s+((typeof v==="string" && v.indexOf("data:")===0)?v.length:0),0); }
+function renderVidList(){
+  return (window._editingVideos||[]).map((v,i)=>{
+    const isData = v.indexOf("data:")===0;
+    const shown = isData ? v : v.replace(/#jfy=[vh]$/,"");
+    const label = isData ? ("🎬 فيديو من الجهاز ("+(v.length*0.75/1048576).toFixed(1)+" MB)") : shown;
+    const mode = (!isData && fbHref(v)) ? fbMode(v) : null;
+    const sel = mode ? `<select title="اتجاه فيديو فيسبوك" onchange="setVidOri(${i},this.value)"><option value="a"${mode==="a"?" selected":""}>تلقائي</option><option value="v"${mode==="v"?" selected":""}>طولي</option><option value="h"${mode==="h"?" selected":""}>عرضي</option></select>` : "";
+    return `<div class="vi"><span class="vn" title="${isData?'':escapeHtml(shown)}">${isData?label:escapeHtml(label)}</span>${sel}<button type="button" onclick="removeEditingVid(${i})">✕</button></div>`;
+  }).join("");
+}
+function refreshVidList(){ const el=document.getElementById("pfVids"); if(el) el.innerHTML=renderVidList(); const r=document.getElementById("pfVidRoom"); if(r) r.textContent=vidRoomText(); }
+function removeEditingVid(i){ window._editingVideos.splice(i,1); refreshVidList(); }
+function addVideoUrl(){
+  const inp=document.getElementById("pfVideo"); if(!inp) return;
+  const raw=inp.value.trim(); if(!raw){ toast("اكتب أو الصق رابط الفيديو أولًا"); return; }
+  const u = withVidOri(raw);
+  window._editingVideos=window._editingVideos||[];
+  if(window._editingVideos.includes(u)){ toast("الرابط ده مضاف بالفعل"); return; }
+  window._editingVideos.push(u); inp.value=""; syncVidOriSel(); refreshVidList();
+}
+/* اتجاه فيديو فيسبوك: قائمة الاختيار بتظهر بس لما الرابط يكون فيسبوك */
+function withVidOri(u){ const sel=document.getElementById("pfVideoOri"); return (sel && fbHref(u)) ? setFbOri(u, sel.value) : u; }
+function syncVidOriSel(){
+  const inp=document.getElementById("pfVideo"), sel=document.getElementById("pfVideoOri"); if(!inp||!sel) return;
+  const isFb = !!fbHref(inp.value.trim()) && inp.value.trim()!=="";
+  sel.style.display = isFb ? "" : "none"; if(!isFb) sel.value="a";
+}
+function setVidOri(i, mode){
+  const arr = window._editingVideos||[]; if(typeof arr[i]!=="string") return;
+  arr[i] = setFbOri(arr[i], mode); refreshVidList();
+}
+function handleVideoFiles(files){
+  const tooBig = (name, mb) => toast("الفيديو ("+name+") أكبر من المساحة المتاحة"+(mb!==null?" ("+mb.toFixed(1)+" MB)":"")+" — استخدم رابط فيديو أو قلّل حجمه أو احذف صور/فيديوهات");
+  [...files].forEach(f=>{
+    if(!/^video\//.test(f.type)){ toast("الملف ده مش فيديو: "+f.name); return; }
+    if(Math.ceil(f.size/3)*4 + 60 > storeRoomChars()){ tooBig(f.name, maxUploadMB()); return; }   // رفض فوري قبل قراءة الملف
+    const fr=new FileReader();
+    fr.onload=()=>{
+      window._editingVideos=window._editingVideos||[];
+      if(fr.result.length + 3 > storeRoomChars()){ tooBig(f.name, maxUploadMB()); return; }   // إعادة فحص (لو اتختار أكتر من فيديو مع بعض)
+      window._editingVideos.push(fr.result); refreshVidList();
+    };
+    fr.onerror=()=>toast("تعذر قراءة الفيديو: "+f.name);
+    fr.readAsDataURL(f);
+  });
+}
 function saveProductForm(id, isEdit){
   const name = document.getElementById("pfName").value.trim();
   if(!name){ toast("أدخل اسم المنتج"); return; }
@@ -1067,18 +1243,27 @@ function saveProductForm(id, isEdit){
     sizes = sizeList.map(z=>{ const e = keepOwn ? sizeEntry(oldP,z) : null; return {size:z, price:(e && e.price>0) ? e.price : newPrice}; });
     colors = colorList.map(c=>{ const e = keepOwn ? colorEntry(oldP,c) : null; return {color:c, price:(e && e.price>0) ? e.price : newPrice}; });
   }
+  const pendingUrl = document.getElementById("pfVideo").value.trim();
+  const pendingFinal = pendingUrl ? withVidOri(pendingUrl) : "";
+  if(pendingFinal && !(window._editingVideos||[]).includes(pendingFinal)) (window._editingVideos=window._editingVideos||[]).push(pendingFinal);
+  const vids = (window._editingVideos||[]).slice();
   const obj = {
     id, name,
     cat: document.getElementById("pfCat").value,
     price: newPrice,
     desc: document.getElementById("pfDesc").value.trim(),
-    video: document.getElementById("pfVideo").value.trim(),
+    video: "",
+    videos: vids,
     images: (window._editingImages||[]).slice(),
     demo:false
   };
   if(sizes.length) obj.sizes = sizes;
   if(colors.length) obj.colors = colors;
   if(variants) obj.variants = variants;
+  { /* حماية: حجم بيانات المتجر كلها لازم يفضل أقل من حد النشر */
+    const total = JSON.stringify(DATA).length - (isEdit ? JSON.stringify(oldP).length : 0) + JSON.stringify(obj).length;
+    if(total > STORE_MAX_CHARS){ toast("حجم بيانات المتجر (صور + فيديوهات) كبير جدًا على النشر — احذف فيديو/صور أو استخدم رابط فيديو"); return; }
+  }
   if(isEdit){ const i=DATA.products.findIndex(p=>p.id===id); DATA.products[i]=obj; }
   else DATA.products.push(obj);
   saveData(DATA); closeModal(); renderAdminProducts(); toast("تم حفظ المنتج");
