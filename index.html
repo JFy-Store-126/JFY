@@ -78,6 +78,9 @@ main{max-width:1180px;margin:0 auto;padding:6px 18px 70px}
 .card{background:var(--paper);border:1px solid var(--border);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
 .card .thumb{aspect-ratio:1/1;background:linear-gradient(135deg,var(--navy),var(--navy-2));position:relative;overflow:hidden}
 .card .thumb img{width:100%;height:100%;object-fit:cover}
+/* الإطار يتكيف مع أبعاد الصورة الأصلية (بدون قص أو تمديد) */
+.card .thumb.fit{aspect-ratio:auto}
+.card .thumb.fit img{width:100%;height:auto;object-fit:contain}
 .card .thumb .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:40px;color:var(--copper-2)}
 .card .demo-tag{position:absolute;top:8px;right:8px;background:rgba(16,30,56,.85);color:var(--copper-2);
   font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px}
@@ -96,6 +99,9 @@ main{max-width:1180px;margin:0 auto;padding:6px 18px 70px}
 .gallery-main{aspect-ratio:1/1;border-radius:18px;overflow:hidden;background:linear-gradient(135deg,var(--navy),var(--navy-2));
   position:relative;cursor:zoom-in}
 .gallery-main img{width:100%;height:100%;object-fit:cover}
+.gallery-main.fit{aspect-ratio:auto;background:none;border-radius:0;overflow:visible}
+.gallery-main.fit img{width:auto;height:auto;max-width:100%;max-height:75vh;max-height:75dvh;margin:0 auto;object-fit:contain;
+  border-radius:18px;background:linear-gradient(135deg,var(--navy),var(--navy-2))}
 .gallery-main .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:70px;color:var(--copper-2)}
 .gallery-thumbs{display:flex;gap:8px;margin-top:10px;overflow-x:auto}
 .gallery-thumbs .gt{width:62px;height:62px;flex:none;border-radius:10px;overflow:hidden;border:2px solid transparent;background:var(--navy)}
@@ -130,7 +136,7 @@ main{max-width:1180px;margin:0 auto;padding:6px 18px 70px}
 .lightbox{position:fixed;inset:0;background:rgba(8,10,16,.94);z-index:200;display:none;align-items:center;justify-content:center;
   padding:env(safe-area-inset-top,0px) 10px env(safe-area-inset-bottom,0px)}
 .lightbox.open{display:flex}
-.lightbox img{max-width:94vw;max-height:80vh;object-fit:contain;border-radius:8px}
+.lightbox img{width:auto;height:auto;max-width:94vw;max-height:80vh;max-height:80dvh;object-fit:contain;border-radius:8px}
 .lightbox .lb-close{position:absolute;top:calc(env(safe-area-inset-top,0px) + 14px);left:16px;z-index:5;cursor:pointer;padding:8px 12px;line-height:1;color:#fff;font-size:26px;background:none;border:none}
 .lightbox .lb-nav{position:absolute;top:50%;transform:translateY(-50%);color:#fff;background:rgba(255,255,255,.12);
   border:none;width:46px;height:46px;border-radius:50%;font-size:22px}
@@ -223,6 +229,43 @@ footer.foot{text-align:center;padding:26px 18px calc(26px + env(safe-area-inset-
 .img-thumbs .it img{width:100%;height:100%;object-fit:cover}
 .img-thumbs .it button{position:absolute;top:1px;left:1px;background:rgba(176,65,62,.9);color:#fff;border:none;
   width:18px;height:18px;border-radius:50%;font-size:11px;line-height:1}
+.tc-ov{position:fixed;inset:0;background:rgba(10,12,18,.6);z-index:250;display:flex;align-items:center;justify-content:center;padding:16px}
+.tc-box{background:var(--paper);color:var(--ink);width:100%;max-width:440px;max-height:92vh;overflow-y:auto;border-radius:18px;padding:18px;box-shadow:0 20px 50px rgba(0,0,0,.35)}
+.tc-box h3{margin:0 0 6px;font-size:16.5px;font-weight:800}
+.tc-box p{margin:0 0 14px;font-size:13px;color:var(--muted);line-height:1.7}
+.tc-opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:10px}
+.tc-opt{display:flex;flex-direction:column;align-items:center;gap:8px;background:var(--paper);color:var(--ink);border:1.5px solid var(--border);border-radius:14px;padding:10px;font-family:inherit;cursor:pointer;min-width:0}
+.tc-opt:active{transform:scale(.98)}
+.tc-opt:hover{border-color:var(--copper)}
+.tc-prev{width:100%;height:120px;border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center;border:1px solid var(--border)}
+.tc-prev.chk{background:conic-gradient(#cfcfcf 25%,#fff 0 50%,#cfcfcf 0 75%,#fff 0) 0 0/16px 16px}
+.tc-prev.wht{background:#fff}
+.tc-prev.drk{background:linear-gradient(135deg,var(--navy),var(--navy-2))}
+.tc-prev.lgt{background:#f1ede6}
+.tc-prev.nob{background:conic-gradient(#e4e0d8 25%,#fff 0 50%,#e4e0d8 0 75%,#fff 0) 0 0/14px 14px}
+/* صورة PNG شفافة اختار صاحب المتجر لها إطار فاتح */
+img[src^="data:image/png;jfybg=l"]{background:#f1ede6 !important}
+/* صورة PNG شفافة اختار صاحب المتجر لها "بدون خلفية خالص": المنتج لوحده طايز من غير أي إطار */
+img[src^="data:image/png;jfybg=n"]{background:transparent !important}
+.card .thumb:has(img[src^="data:image/png;jfybg=n"]),
+.catchip .ic:has(img[src^="data:image/png;jfybg=n"]),
+.cart-item .ci-thumb:has(img[src^="data:image/png;jfybg=n"]),
+.admin-row .at:has(img[src^="data:image/png;jfybg=n"]){background:none}
+.gallery-thumbs .gt:has(img[src^="data:image/png;jfybg=n"]){background:none}
+.catchip .ic:has(img[src^="data:image/png;jfybg=n"]){border-radius:0;overflow:visible}
+.catchip .ic img[src^="data:image/png;jfybg=n"]{object-fit:contain}
+.admin-row .at img[src^="data:image/png;jfybg=n"],.cart-item .ci-thumb img[src^="data:image/png;jfybg=n"],.img-thumbs .it img[src^="data:image/png;jfybg=n"],.gallery-thumbs .gt img[src^="data:image/png;jfybg=n"]{object-fit:contain}
+.img-thumbs .it:has(img[src^="data:image/png;jfybg=n"]){background:conic-gradient(#d9d9d9 25%,#fff 0 50%,#d9d9d9 0 75%,#fff 0) 0 0/10px 10px}
+/* في التكبير: خلفية فاتحة عشان المنتج الغامق ميضيعش، وأزرار التحكم تتقلب غامقة */
+.lightbox:not(.vmode):has(#lbImg[src^="data:image/png;jfybg=n"]){background:#F7F3ED}
+.lightbox:not(.vmode):has(#lbImg[src^="data:image/png;jfybg=n"]) .lb-close,
+.lightbox:not(.vmode):has(#lbImg[src^="data:image/png;jfybg=n"]) .lb-count,
+.lightbox:not(.vmode):has(#lbImg[src^="data:image/png;jfybg=n"]) .lb-price small{color:#1C1A17}
+.lightbox:not(.vmode):has(#lbImg[src^="data:image/png;jfybg=n"]) .lb-nav{color:#1C1A17;background:rgba(0,0,0,.08)}
+.lightbox:not(.vmode):has(#lbImg[src^="data:image/png;jfybg=n"]) .lb-price b{color:var(--copper)}
+.tc-prev img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain}
+.tc-opt b{font-size:13.5px;font-weight:800;line-height:1.4}
+.tc-opt small{font-size:11.5px;color:var(--muted);line-height:1.5}
 .upload-box{border:1.5px dashed var(--border);border-radius:12px;padding:14px;text-align:center;font-size:12.5px;color:var(--muted);margin-bottom:12px}
 .upload-box input{margin-top:8px}
 .vid-list{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
@@ -495,7 +538,7 @@ function renderHome(activeCat, searchVal){
 function productCardHTML(p){
   const img = p.images && p.images[0];
   return `<a href="#/product/${p.id}" class="card">
-    <div class="thumb">${img?`<img src="${img}">`:`<div class="ph">${(DATA.categories.find(c=>c.id===p.cat)||{}).icon||'🛍️'}</div>`}
+    <div class="thumb${img?' fit':''}">${img?`<img src="${img}">`:`<div class="ph">${(DATA.categories.find(c=>c.id===p.cat)||{}).icon||'🛍️'}</div>`}
       ${p.demo?'<div class="demo-tag">منتج تجريبي</div>':''}</div>
     <div class="cbody">
       <div class="cname">${escapeHtml(p.name)}</div>
@@ -588,7 +631,7 @@ function renderProduct(id){
       <a class="backlink" href="#/">‹ العودة للمتجر</a>
       <div class="pd-wrap">
         <div>
-          <div class="gallery-main" id="galMain" onclick="openLightbox()">
+          <div class="gallery-main${imgs?' fit':''}" id="galMain" onclick="openLightbox()">
             ${imgs? `<img id="galMainImg" src="${imgs[0]}">` : `<div class="ph">${catIcon}</div>`}
           </div>
           ${imgs&&imgs.length>1? `<div class="gallery-thumbs">${imgs.map((im,i)=>`<div class="gt ${i===0?'active':''}" data-i="${i}" onclick="setGalleryImg(${i})"><img src="${im}"></div>`).join("")}</div>`:""}
@@ -882,7 +925,51 @@ function closeModal(){ document.getElementById("modalOverlay").classList.remove(
 document.getElementById("modalOverlay").onclick=(e)=>{ if(e.target.id==="modalOverlay") closeModal(); };
 
 /* ================= IMAGE HELPERS ================= */
-function resizeImage(file, maxDim, cb){
+function hasTransparency(ctx, w, h){
+  try{
+    if(!w || !h) return false;
+    const d = ctx.getImageData(0,0,w,h).data;
+    for(let i=3;i<d.length;i+=4){ if(d[i]<250) return true; }
+  }catch(e){}
+  return false;
+}
+/* لو الصورة فيها شفافية: نخلّي المستخدم يختار (PNG بشفافية) أو (خلفية بيضاء) — واحدة واحدة بالدور */
+let _imgChoiceChain = Promise.resolve();
+function askTransparentChoice(canvas, cb, frame){
+  _imgChoiceChain = _imgChoiceChain.then(()=>new Promise(done=>{
+    const png = canvas.toDataURL("image/png");
+    const pngLight = png.replace("data:image/png;base64,","data:image/png;jfybg=l;base64,");
+    const pngNone = png.replace("data:image/png;base64,","data:image/png;jfybg=n;base64,");
+    const wc = document.createElement("canvas"); wc.width = canvas.width; wc.height = canvas.height;
+    const wx = wc.getContext("2d"); wx.fillStyle = "#fff"; wx.fillRect(0,0,wc.width,wc.height); wx.drawImage(canvas,0,0);
+    const jpg = wc.toDataURL("image/jpeg",0.82);
+    const kb = u => { const k = Math.round(u.length*0.75/1024); return k>=1024 ? (k/1024).toFixed(1)+" MB" : k+" KB"; };
+    const sz = u => `الحجم حوالي <bdi dir="ltr">${kb(u)}</bdi>`;
+    const opts = {};
+    let html = "";
+    if(frame){
+      opts.dark = png; opts.light = pngLight; opts.none = pngNone;
+      html += `<button type="button" class="tc-opt" data-k="dark"><div class="tc-prev drk"><img src="${png}" alt=""></div><b>PNG شفاف — إطار غامق</b><small>يحافظ على الشفافية — ${sz(png)}</small></button>`;
+      html += `<button type="button" class="tc-opt" data-k="light"><div class="tc-prev lgt"><img src="${png}" alt=""></div><b>PNG شفاف — إطار فاتح</b><small>يحافظ على الشفافية — ${sz(png)}</small></button>`;
+      html += `<button type="button" class="tc-opt" data-k="none"><div class="tc-prev nob"><img src="${png}" alt=""></div><b>بدون خلفية خالص</b><small>المنتج لوحده طايز من غير أي إطار — ${sz(png)}</small></button>`;
+    }else{
+      opts.dark = png;
+      html += `<button type="button" class="tc-opt" data-k="dark"><div class="tc-prev chk"><img src="${png}" alt=""></div><b>PNG بخلفية شفافة</b><small>يحافظ على الشفافية — ${sz(png)}</small></button>`;
+    }
+    opts.white = jpg;
+    html += `<button type="button" class="tc-opt" data-k="white"><div class="tc-prev wht"><img src="${jpg}" alt=""></div><b>خلفية بيضاء</b><small>تتحفظ JPEG — ${sz(jpg)}</small></button>`;
+    const ov = document.createElement("div"); ov.className = "tc-ov"; ov.setAttribute("role","dialog");
+    ov.innerHTML = `<div class="tc-box"><h3>الصورة دي فيها خلفية شفافة</h3><p>${frame?"اختار طريقة الحفظ ولون الإطار اللي هيظهر ورا الصورة في المتجر (أو بدون خلفية خالص):":"اختار طريقة الحفظ المناسبة:"}</p><div class="tc-opts">${html}</div></div>`;
+    ov.querySelectorAll(".tc-opt").forEach(btn=>btn.addEventListener("click",()=>{
+      const url = opts[btn.getAttribute("data-k")];
+      ov.remove();
+      try{ cb(url); }catch(err){ console.error(err); }
+      done();
+    }));
+    document.body.appendChild(ov);
+  }));
+}
+function resizeImage(file, maxDim, cb, onFail, frame){
   const reader = new FileReader();
   reader.onload = (e)=>{
     const img = new Image();
@@ -890,13 +977,14 @@ function resizeImage(file, maxDim, cb){
       let {width:w, height:h} = img;
       if(w>h && w>maxDim){ h=h*maxDim/w; w=maxDim; } else if(h>maxDim){ w=w*maxDim/h; h=maxDim; }
       const canvas=document.createElement("canvas"); canvas.width=w; canvas.height=h;
-      canvas.getContext("2d").drawImage(img,0,0,w,h);
+      const ctx = canvas.getContext("2d"); ctx.drawImage(img,0,0,w,h);
+      if(file.type!=="image/jpeg" && hasTransparency(ctx, canvas.width, canvas.height)){ askTransparentChoice(canvas, cb, frame); return; }
       cb(canvas.toDataURL("image/jpeg",0.82));
     };
-    img.onerror=()=>toast("تعذر قراءة الصورة");
+    img.onerror=()=>{ toast("تعذر قراءة الصورة"); if(onFail) onFail(); };
     img.src = e.target.result;
   };
-  reader.onerror=()=>toast("فشل رفع الصورة");
+  reader.onerror=()=>{ toast("فشل رفع الصورة"); if(onFail) onFail(); };
   reader.readAsDataURL(file);
 }
 
@@ -1157,7 +1245,11 @@ function openProductForm(id){
     <button class="btn-primary" onclick="saveProductForm('${p.id}', ${id?'true':'false'})">حفظ المنتج</button>
   `);
   document.getElementById("pfUpload").onchange = (e)=>{
-    [...e.target.files].forEach(f=>resizeImage(f,900,(dataUrl)=>{ window._editingImages.push(dataUrl); document.getElementById("pfImgs").innerHTML=renderImgThumbs(); }));
+    let chain = Promise.resolve();
+    const picked = [...e.target.files]; e.target.value = "";
+    picked.forEach(f=>{ chain = chain.then(()=>new Promise(res=>{
+      resizeImage(f,900,(dataUrl)=>{ window._editingImages.push(dataUrl); const el=document.getElementById("pfImgs"); if(el) el.innerHTML=renderImgThumbs(); res(); }, res, true);
+    })); });
   };
   document.getElementById("pfVidUpload").onchange = (e)=>{ handleVideoFiles(e.target.files); e.target.value=""; };
   document.getElementById("pfVideo").onkeydown = (e)=>{ if(e.key==="Enter"){ e.preventDefault(); addVideoUrl(); } };
@@ -1300,9 +1392,9 @@ function openCatForm(id){
     <button class="btn-primary" onclick="saveCatForm('${c.id}', ${id?'true':'false'})">حفظ التصنيف</button>
   `);
   document.getElementById("cfUpload").onchange=(e)=>{
-    if(!e.target.files[0]) return;
-    resizeImage(e.target.files[0], 200, (dataUrl)=>{ window._catImg=dataUrl;
-      document.getElementById("cfImgWrap").innerHTML = `<div class="it"><img src="${dataUrl}"><button onclick="window._catImg=null;document.getElementById('cfImgWrap').innerHTML=''">✕</button></div>`; });
+    const f0 = e.target.files[0]; if(!f0) return; e.target.value = "";
+    resizeImage(f0, 200, (dataUrl)=>{ window._catImg=dataUrl;
+      document.getElementById("cfImgWrap").innerHTML = `<div class="it"><img src="${dataUrl}"><button onclick="window._catImg=null;document.getElementById('cfImgWrap').innerHTML=''">✕</button></div>`; }, null, true);
   };
 }
 function saveCatForm(id, isEdit){
@@ -1340,8 +1432,8 @@ function renderAdminLogo(){
     <p style="color:var(--muted);font-size:12px;margin-top:18px">ملاحظة: لو الموقع منشور من كلود مباشرة، أي تعديل بيتحدث تلقائيًا لكل الزوار فور الحفظ. لو الموقع مستضاف بره كلود (Netlify أو غيره)، لازم تنزّل نسخة محدثة (بالزرار اللي فوق) وترفعها بنفسك كل مرة عشان التعديلات تظهر للعملاء.</p>
   `;
   document.getElementById("logoUpload").onchange=(e)=>{
-    if(!e.target.files[0]) return;
-    resizeImage(e.target.files[0], 240, (dataUrl)=>{ DATA.logo=dataUrl; saveData(DATA); renderAdminLogo(); toast("تم تحديث الشعار"); });
+    const f0 = e.target.files[0]; if(!f0) return; e.target.value = "";
+    resizeImage(f0, 240, (dataUrl)=>{ DATA.logo=dataUrl; saveData(DATA); renderAdminLogo(); toast("تم تحديث الشعار"); });
   };
 }
 function downloadUpdatedSite(){
