@@ -493,6 +493,13 @@ function variantEntry(p,size,color){
 function sizeEntry(p,size){ return hasSizes(p) ? p.sizes.find(s=>String(s.size)===String(size)) : null; }
 function colorEntry(p,color){ return hasColors(p) ? p.colors.find(c=>String(c.color)===String(color)) : null; }
 function allPrices(p){ const vs=getVariants(p); return vs.length ? vs.map(v=>vPrice(p,v)) : [Number(p.price)||0]; }
+/* كود المنتج (جاي من ملف الإكسيل): p.code للمنتج العادي، و p.vcodes = [{size,color,code}] لكل مقاس/لون */
+function codeFor(p,size,color){
+  if(!p) return "";
+  const z=String(size||""), c=String(color||"");
+  if(Array.isArray(p.vcodes)){ const v=p.vcodes.find(x=>String(x.size||"")===z && String(x.color||"")===c); if(v && v.code) return String(v.code); }
+  return p.code ? String(p.code) : "";
+}
 function unitPrice(p,size,color){ const v=variantEntry(p,size,color); return v ? vPrice(p,v) : p.price; }
 function priceFrom(p){ return Math.min.apply(null,allPrices(p)); }
 function priceVaries(p){ const a=allPrices(p); return Math.min.apply(null,a)!==Math.max.apply(null,a); }
@@ -1141,7 +1148,8 @@ function submitOrder(){
     const p=DATA.products.find(x=>x.id===c.id); if(!p) return "";
     const up = unitPrice(p,c.size,c.color);
     total += up*c.qty; totalPieces += c.qty;
-    return `${c.qty} × ${p.name}${c.size?" — مقاس "+c.size:""}${c.color?" — لون "+c.color:""} — ${up} جنيه`;
+    const pcode = codeFor(p,c.size,c.color);
+    return `${c.qty} × ${p.name}${c.size?" — مقاس "+c.size:""}${c.color?" — لون "+c.color:""} — ${up} جنيه${pcode?" — الكود: "+pcode:""}`;
   }).filter(Boolean).join("\n");
 
   const msg = `مرحبًا ${STORE_NAME} 👋\n\nأرغب في تأكيد الطلب:\n\nرقم الطلب:\n#${orderNo}\n\nالاسم:\n${name}\n\nرقم الموبايل:\n${phone}\n\nالعنوان:\n${addr}\n\nتفاصيل الطلب:\n${lines}\n\nإجمالي عدد القطع:\n${totalPieces}\n\nإجمالي المنتجات:\n${total} جنيه\n\nمصاريف الشحن:\nيتم تحديدها لاحقًا\n\nالإجمالي قبل الشحن:\n${total} جنيه\n\nشكرًا لكم.`;
@@ -1351,7 +1359,7 @@ async function handleExcelFile(file){
     const prodSheetName = wb.SheetNames.find(n=>n.includes("تسعير")) || wb.SheetNames.find(n=>n.includes("منتج"));
     if(!prodSheetName){ status.textContent="لم يتم العثور على شيت المنتجات (تسعير المنتجات) في هذا الملف."; return; }
     const rows = XLSX.utils.sheet_to_json(wb.Sheets[prodSheetName], {header:1, defval:null});
-    let headerIdx=-1, colName=-1, colCat=-1, colPrice=-1, colSize=-1, colColor=-1;
+    let headerIdx=-1, colName=-1, colCat=-1, colPrice=-1, colSize=-1, colColor=-1, colCode=-1;
     for(let i=0;i<Math.min(rows.length,8);i++){
       const row = rows[i]||[];
       const ni = row.findIndex(c=>String(c||"").trim()==="اسم المنتج");
@@ -1361,6 +1369,7 @@ async function handleExcelFile(file){
         colPrice = row.findIndex(c=>String(c||"").includes("سعر البيع"));
         colSize = row.findIndex(c=>String(c||"").trim().startsWith("المقاس"));
         colColor = row.findIndex(c=>String(c||"").trim().startsWith("اللون"));
+        colCode = row.findIndex(c=>{ const t=String(c||"").trim(); return t.includes("كود") || /^(sku|code|product code|barcode)$/i.test(t); });
         break;
       }
     }
@@ -1404,14 +1413,16 @@ async function handleExcelFile(file){
       const full = String(name).trim();
       const size = (colSize>-1 && row[colSize]!=null) ? String(row[colSize]).trim() : "";
       const color = (colColor>-1 && row[colColor]!=null) ? String(row[colColor]).trim() : "";
+      const code = (colCode>-1 && row[colCode]!=null) ? String(row[colCode]).trim() : "";
       const base = (size||color) ? baseName(full,size,color) : full;
       let g = gmap[base];
-      if(!g){ g={name:base, catId, price, variants:[], fulls:[]}; gmap[base]=g; groups.push(g); }
+      if(!g){ g={name:base, catId, price, variants:[], fulls:[], vc:[], code:""}; gmap[base]=g; groups.push(g); }
       if(size||color){
         if(!g.variants.some(v=>v.size===size && v.color===color)) g.variants.push({size, color, price});
+        if(code){ const ev=g.vc.find(v=>v.size===size && v.color===color); if(ev){ if(!ev.code) ev.code=code; } else g.vc.push({size, color, code}); }
         g.fulls.push(full);
       }
-      else { g.price = price; }
+      else { g.price = price; if(code) g.code = code; }
     }
     let sized=0, merged=0, incomplete=0;
     groups.forEach(g=>{
@@ -1436,15 +1447,20 @@ async function handleExcelFile(file){
         if(g.colors.length) o.colors=g.colors; else delete o.colors;
         if(g.sizes.length && g.colors.length) o.variants=g.variants; else delete o.variants;
       };
-      if(existing){ existing.cat=g.catId; existing.price=g.price; existing.demo=false; applyOpts(existing); updProds++; }
+      const applyCodes = (o)=>{
+        if(colCode===-1) return;   // مفيش عمود كود في الإكسيل: سيب أي أكواد موجودة زي ما هي
+        if(g.code) o.code=g.code; else delete o.code;
+        if(g.vc.length) o.vcodes=g.vc; else delete o.vcodes;
+      };
+      if(existing){ existing.cat=g.catId; existing.price=g.price; existing.demo=false; applyOpts(existing); applyCodes(existing); updProds++; }
       else{
         const np={id:"p"+Date.now()+Math.floor(Math.random()*999), name:g.name, cat:g.catId, price:g.price, desc:"", images:[], video:"", demo:false, fromExcel:true};
-        applyOpts(np);
+        applyOpts(np); applyCodes(np);
         DATA.products.push(np); newProds++;
       }
     });
     saveData(DATA);
-    status.textContent = `تم الاستيراد بنجاح: ${newProds} منتج جديد، ${updProds} منتج تم تحديثه، ${newCats} تصنيف جديد.` + (sized? ` (${sized} منتج بمقاسات/ألوان${merged? "، ودمجنا "+merged+" منتج كانوا مسجلين قبل كده كمنتجات منفصلة":""})`:"") + (incomplete? ` ⚠ فيه ${incomplete} صف ناقص المقاس أو اللون في موديل له مقاسات وألوان — الصفوف دي مش هتظهر للعميل، كمّل بياناتها في الإكسيل.`:"");
+    status.textContent = `تم الاستيراد بنجاح: ${newProds} منتج جديد، ${updProds} منتج تم تحديثه، ${newCats} تصنيف جديد.` + (sized? ` (${sized} منتج بمقاسات/ألوان${merged? "، ودمجنا "+merged+" منتج كانوا مسجلين قبل كده كمنتجات منفصلة":""})`:"") + (colCode===-1? ` ⚠ مفيش عمود "كود" في شيت المنتجات، فمش هيظهر كود في رسالة الواتساب.`:"") + (incomplete? ` ⚠ فيه ${incomplete} صف ناقص المقاس أو اللون في موديل له مقاسات وألوان — الصفوف دي مش هتظهر للعميل، كمّل بياناتها في الإكسيل.`:"");
     toast("تم تحديث بيانات المتجر من الإكسل");
   }catch(e){
     console.error(e);
@@ -1610,6 +1626,7 @@ function saveProductForm(id, isEdit){
   if(sizes.length) obj.sizes = sizes;
   if(colors.length) obj.colors = colors;
   if(variants) obj.variants = variants;
+  if(isEdit){ if(oldP.code) obj.code = oldP.code; if(Array.isArray(oldP.vcodes) && oldP.vcodes.length) obj.vcodes = oldP.vcodes; }   // الأكواد القادمة من الإكسيل ما تتمسحش عند تعديل المنتج
   { /* حماية: حجم بيانات المتجر كلها لازم يفضل أقل من حد النشر */
     const total = JSON.stringify(DATA).length - (isEdit ? JSON.stringify(oldP).length : 0) + JSON.stringify(obj).length;
     if(total > STORE_MAX_CHARS){ toast("حجم بيانات المتجر (صور + فيديوهات) كبير جدًا على النشر — احذف فيديو/صور أو استخدم رابط فيديو"); return; }
