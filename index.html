@@ -80,7 +80,7 @@ main{max-width:1180px;margin:0 auto;padding:6px 18px 70px}
 .card .thumb.fit img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
 .card .thumb.fit img.jfy-blur{position:absolute;inset:-18px;width:calc(100% + 36px);height:calc(100% + 36px);object-fit:cover;filter:blur(16px) saturate(1.1);transform:scale(1.08);pointer-events:none;z-index:0}
 .card .thumb.fit img:not(.jfy-blur){z-index:1}
-.card .thumb.fit:has(img[src^="data:image/png;base64"]){background:linear-gradient(135deg,var(--navy),var(--navy-2))}
+.card .thumb.fit:has(img:is([src^="data:image/png;base64"],[src$=".png"])){background:linear-gradient(135deg,var(--navy),var(--navy-2))}
 .card .thumb .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:40px;color:var(--copper-2)}
 .card .demo-tag{position:absolute;top:8px;right:8px;background:rgba(16,30,56,.85);color:var(--copper-2);
   font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px}
@@ -290,26 +290,26 @@ footer.foot{text-align:center;padding:26px 18px calc(26px + env(safe-area-inset-
 .tc-prev.lgt{background:#f1ede6}
 .tc-prev.nob{background:conic-gradient(#e4e0d8 25%,#fff 0 50%,#e4e0d8 0 75%,#fff 0) 0 0/14px 14px}
 /* صورة PNG شفافة اختار صاحب المتجر لها إطار فاتح */
-img[src^="data:image/png;jfybg=l"]{background:#f1ede6 !important}
+img:is([src^="data:image/png;jfybg=l"],[src$="#jfybg=l"]){background:#f1ede6 !important}
 /* صورة PNG شفافة اختار صاحب المتجر لها "بدون خلفية خالص": المنتج لوحده طايز من غير أي إطار */
-img[src^="data:image/png;jfybg=n"]{background:transparent !important}
-.card .thumb:has(img[src^="data:image/png;jfybg=n"]),
-.catchip .ic:has(img[src^="data:image/png;jfybg=n"]),
-.cart-item .ci-thumb:has(img[src^="data:image/png;jfybg=n"]),
-.admin-row .at:has(img[src^="data:image/png;jfybg=n"]){background:none}
-.gallery-thumbs .gt:has(img[src^="data:image/png;jfybg=n"]){background:none}
-.catchip .ic:has(img[src^="data:image/png;jfybg=n"]){border-radius:0;overflow:visible}
-.catchip .ic img[src^="data:image/png;jfybg=n"]{object-fit:contain}
-.admin-row .at img[src^="data:image/png;jfybg=n"],.cart-item .ci-thumb img[src^="data:image/png;jfybg=n"],.img-thumbs .it img[src^="data:image/png;jfybg=n"],.gallery-thumbs .gt img[src^="data:image/png;jfybg=n"]{object-fit:contain}
-.img-thumbs .it:has(img[src^="data:image/png;jfybg=n"]){background:conic-gradient(#d9d9d9 25%,#fff 0 50%,#d9d9d9 0 75%,#fff 0) 0 0/10px 10px}
+img:is([src^="data:image/png;jfybg=n"],[src$="#jfybg=n"]){background:transparent !important}
+.card .thumb:has(img:is([src^="data:image/png;jfybg=n"],[src$="#jfybg=n"])),
+.catchip .ic:has(img:is([src^="data:image/png;jfybg=n"],[src$="#jfybg=n"])),
+.cart-item .ci-thumb:has(img:is([src^="data:image/png;jfybg=n"],[src$="#jfybg=n"])),
+.admin-row .at:has(img:is([src^="data:image/png;jfybg=n"],[src$="#jfybg=n"])){background:none}
+.gallery-thumbs .gt:has(img:is([src^="data:image/png;jfybg=n"],[src$="#jfybg=n"])){background:none}
+.catchip .ic:has(img:is([src^="data:image/png;jfybg=n"],[src$="#jfybg=n"])){border-radius:0;overflow:visible}
+.catchip .ic img:is([src^="data:image/png;jfybg=n"],[src$="#jfybg=n"]){object-fit:contain}
+.admin-row .at img:is([src^="data:image/png;jfybg=n"],[src$="#jfybg=n"]),.cart-item .ci-thumb img:is([src^="data:image/png;jfybg=n"],[src$="#jfybg=n"]),.img-thumbs .it img:is([src^="data:image/png;jfybg=n"],[src$="#jfybg=n"]),.gallery-thumbs .gt img:is([src^="data:image/png;jfybg=n"],[src$="#jfybg=n"]){object-fit:contain}
+.img-thumbs .it:has(img:is([src^="data:image/png;jfybg=n"],[src$="#jfybg=n"])){background:conic-gradient(#d9d9d9 25%,#fff 0 50%,#d9d9d9 0 75%,#fff 0) 0 0/10px 10px}
 /* في التكبير: خلفية فاتحة عشان المنتج الغامق ميضيعش، وأزرار التحكم تتقلب غامقة */
-.lightbox:not(.vmode):has(#lbImg[src^="data:image/png;jfybg=n"]){background:#F7F3ED}
-.lightbox:not(.vmode):has(#lbImg[src^="data:image/png;jfybg=n"]) .lb-close,
-.lightbox:not(.vmode):has(#lbImg[src^="data:image/png;jfybg=n"]) .lb-count,
-.lightbox:not(.vmode):has(#lbImg[src^="data:image/png;jfybg=n"]) .lb-price small{color:#1C1A17}
-.lightbox:not(.vmode):has(#lbImg[src^="data:image/png;jfybg=n"]) .lb-nav,
-.lightbox:not(.vmode):has(#lbImg[src^="data:image/png;jfybg=n"]) .lb-zoom{color:#1C1A17;background:rgba(0,0,0,.08)}
-.lightbox:not(.vmode):has(#lbImg[src^="data:image/png;jfybg=n"]) .lb-price b{color:var(--copper)}
+.lightbox:not(.vmode):has(#lbImg:is([src^="data:image/png;jfybg=n"],[src$="#jfybg=n"])){background:#F7F3ED}
+.lightbox:not(.vmode):has(#lbImg:is([src^="data:image/png;jfybg=n"],[src$="#jfybg=n"])) .lb-close,
+.lightbox:not(.vmode):has(#lbImg:is([src^="data:image/png;jfybg=n"],[src$="#jfybg=n"])) .lb-count,
+.lightbox:not(.vmode):has(#lbImg:is([src^="data:image/png;jfybg=n"],[src$="#jfybg=n"])) .lb-price small{color:#1C1A17}
+.lightbox:not(.vmode):has(#lbImg:is([src^="data:image/png;jfybg=n"],[src$="#jfybg=n"])) .lb-nav,
+.lightbox:not(.vmode):has(#lbImg:is([src^="data:image/png;jfybg=n"],[src$="#jfybg=n"])) .lb-zoom{color:#1C1A17;background:rgba(0,0,0,.08)}
+.lightbox:not(.vmode):has(#lbImg:is([src^="data:image/png;jfybg=n"],[src$="#jfybg=n"])) .lb-price b{color:var(--copper)}
 .tc-prev img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain}
 .tc-opt b{font-size:13.5px;font-weight:800;line-height:1.4}
 .tc-opt small{font-size:11.5px;color:var(--muted);line-height:1.5}
@@ -331,7 +331,7 @@ img[src^="data:image/png;jfybg=n"]{background:transparent !important}
 <body>
 
 <div id="app"></div>
-<script type="application/json" id="storeDataJSON">{"logo": null, "categories": [{"id": "kotshi", "name": "كوتشيات", "icon": "👟", "image": null}, {"id": "shanat", "name": "شنط", "icon": "👜", "image": null}, {"id": "saat", "name": "ساعات", "icon": "⌚", "image": null}, {"id": "mahafez", "name": "محافظ", "icon": "👝", "image": null}, {"id": "acc", "name": "إكسسوارات", "icon": "💍", "image": null}, {"id": "nazarat", "name": "نظارات", "icon": "🕶️", "image": null}], "products": [{"id": "p1", "name": "كوتشي رياضي رجالي موديل A", "cat": "kotshi", "price": 567, "desc": "كوتشي رياضي مريح مناسب للاستخدام اليومي، خامة قوية وتصميم عصري.", "images": [], "video": "", "demo": true}, {"id": "p2", "name": "شنطة يد حريمي جلد", "cat": "shanat", "price": 850, "desc": "شنطة يد أنيقة بخامة جلد فاخرة، تناسب الإطلالة اليومية والمناسبات.", "images": [], "video": "", "demo": true}, {"id": "p3", "name": "ساعة كلاسيك رجالي", "cat": "saat", "price": 1200, "desc": "ساعة أنيقة بحزام جلد وميناء عصري، مقاومة للماء.", "images": [], "video": "", "demo": true}, {"id": "p4", "name": "محفظة جلد طبيعي", "cat": "mahafez", "price": 420, "desc": "محفظة عملية بعدة جيوب للبطاقات والكاش.", "images": [], "video": "", "demo": true}], "adminUserHash": "pbkdf2$dc341ee09c521231f777bc7c18886c9e$98d9b61051c63d941ca29fea80a48b23d405a1439505814e0d33308d5c74b2d3", "adminPassHash": "pbkdf2$13ddc6a904285e7e0760d06feb7e1a91$ea76e667e1357a58ef8f3a5980e903ddc957cbaa7157eedd702676592d972910"}</script>
+<script type="application/json" id="storeDataJSON">{"logo":null,"categories":[{"id":"c1792430823452325","name":"كوتشيات","icon":"👟","image":null},{"id":"c1792430823452673","name":"شنط","icon":"👜","image":null},{"id":"c179243082345276","name":"ساعات","icon":"⌚","image":null},{"id":"c179243082345257","name":"اكسسوارات","icon":"💍","image":null},{"id":"c1792430823452164","name":"محافظ","icon":"👝","image":null}],"products":[{"id":"p1792430823453644","name":"كوتشي رياضي","cat":"c1792430823452325","price":357,"desc":"","video":"","videos":["media/c20b3d8c270b32967586d.mp4#jfy=v","media/c86404333946416f3603ce.mp4#jfy=h","https://www.facebook.com/reel/1085989087378726#jfy=h","https://www.facebook.com/reel/1450333173674644#jfy=v","https://youtu.be/vmJGqnnEzfQ?si=kAoHiNxZoIVxxIaP#jfy=h","https://www.instagram.com/reel/Den2rFeRaKp/?utm_source=ig_web_copy_link&rpxt=NTc4MTIwNjQ2YQ==#jfy=h","https://www.instagram.com/reel/Deqn2YsRjc2/?utm_source=ig_web_copy_link&mdxt=NTc4MTIwNjQ2YQ==#jfy=v"],"images":["media/71fe0aa5d80b890d11a592.png#jfybg=n","media/a0ed7d86835bf77195c7.jpg","media/e82d7ba4f72ba81d7e3a.jpg"],"demo":false,"sizes":[{"size":"40","price":357},{"size":"39","price":357}],"colors":[{"color":"أبيض","price":357},{"color":"أسود","price":357}],"variants":[{"size":"40","color":"أبيض","price":357},{"size":"40","color":"أسود","price":357},{"size":"39","color":"أبيض","price":357},{"size":"39","color":"أسود","price":357}],"vcodes":[{"size":"40","color":"أبيض","code":"M-1-a-40-أبيض"},{"size":"39","color":"أبيض","code":"M-1-a-39-أبيض"},{"size":"40","color":"أسود","code":"M-1-a-40-أسود"},{"size":"39","color":"أسود","code":"M-1-a-39-أسود"}]},{"id":"p1792430823453483","name":"شنطة جلد طبيعى","cat":"c1792430823452673","price":468.99999999999994,"desc":"","video":"","videos":[],"images":["media/baaa700725f152f6bf50.jpg","media/252b70785b5ac22460b4.jpg"],"demo":false,"colors":[{"color":"أحمر","price":468.99999999999994},{"color":"أزرق","price":468.99999999999994}],"vcodes":[{"size":"","color":"أحمر","code":"W-2-a-أحمر"},{"size":"","color":"أزرق","code":"W-2-a-أزرق"}]},{"id":"p1792430823453268","name":"ساعة رولكس","cat":"c179243082345276","price":364,"desc":"","video":"","videos":[],"images":["media/e7bfb4922545aa86536a.jpg","media/7f011034a873f2a7d09fc.png#jfybg=n"],"demo":false,"colors":[{"color":"فضى","price":364},{"color":"ذهبى","price":364}],"vcodes":[{"size":"","color":"فضى","code":"M-3-a-فضى"},{"size":"","color":"ذهبى","code":"M-3-a-ذهبى"}]},{"id":"p179243082345351","name":"سلسلة البلورة","cat":"c179243082345257","price":210,"desc":"","video":"","videos":[],"images":["media/48aa19bef373b69e3163.jpg","media/363ebb245d0eca8c110d44.png"],"demo":false,"colors":[{"color":"ذهبي","price":210}],"vcodes":[{"size":"","color":"ذهبي","code":"W-5-a-ذهبي"}]},{"id":"p1792430823453285","name":"محفظة جلد طبيعى","cat":"c1792430823452164","price":189,"desc":"","video":"","videos":[],"images":["media/8bfbbfa538426c8f5880.jpg","media/6551fba174999388f2fc3.png#jfybg=n"],"demo":false,"colors":[{"color":"بنى","price":189}],"vcodes":[{"size":"","color":"بنى","code":"M-4-a-بنى"}]}],"adminUserHash":"pbkdf2$dc341ee09c521231f777bc7c18886c9e$98d9b61051c63d941ca29fea80a48b23d405a1439505814e0d33308d5c74b2d3","adminPassHash":"pbkdf2$13ddc6a904285e7e0760d06feb7e1a91$ea76e667e1357a58ef8f3a5980e903ddc957cbaa7157eedd702676592d972910"}</script>
 
 <div class="lightbox" id="lightbox">
   <button class="lb-close" id="lbClose">✕</button>
@@ -340,7 +340,7 @@ img[src^="data:image/png;jfybg=n"]{background:transparent !important}
   <button class="lb-nav lb-prev" id="lbPrev">›</button>
   <img id="lbImg" src="" draggable="false">
   <div id="lbVideoBox"></div>
-  <div class="lb-sw" id="lbSwL"></div><div class="lb-sw" id="lbSwR"></div>
+  <div class="lb-sw" id="lbSwL" style="left: 221.5px; top: 68.875px; width: 252px; height: 442.25px;"></div><div class="lb-sw" id="lbSwR" style="left: 869.5px; top: 68.875px; width: 252px; height: 442.25px;"></div>
   <button class="lb-nav lb-next" id="lbNext">‹</button>
   <div class="lb-count" id="lbCount"></div>
   <div class="lb-price" id="lbPrice"></div>
@@ -414,10 +414,10 @@ function getArtifactCap(){
   if(!_artifactCapPromise) _artifactCapPromise = window.claude.use("artifact").catch(()=>null);
   return _artifactCapPromise;
 }
-function snapshotFullHTML(newData){
+function snapshotFullHTML(newData, noLive){
   // نعمل نسخة من الصفحة وننظفها (بدون لوحة تحكم مفتوحة أو سلة أو نوافذ) عشان الصفحة المنشورة تفتح نضيفة
   const json = JSON.stringify(newData).replace(/</g,"\\u003c");
-  const live = document.getElementById("storeDataJSON"); if(live) live.textContent = json;
+  const live = document.getElementById("storeDataJSON"); if(live && !noLive) live.textContent = json;
   const clone = document.documentElement.cloneNode(true);
   const app = clone.querySelector("#app"); if(app) app.innerHTML = "";
   ["cartOverlay","cartDrawer","modalOverlay","lightbox"].forEach(id=>{ const el=clone.querySelector("#"+id); if(el) el.classList.remove("open"); });
@@ -619,7 +619,7 @@ function jfyCardBg(img){
     if(!t || !t.classList || !t.classList.contains("thumb")) return;
     if(t.querySelector(".jfy-blur")) return;
     const src = img.getAttribute("src")||"";
-    if(/^data:image\/png/i.test(src)) return;   // PNG شفاف: الإطار اللي اخترته (غامق/فاتح/بدون) هو اللي بيظهر
+    if(/^data:image\/png/i.test(src) || /\.png(#.*)?$/i.test(src)) return;   // PNG شفاف: الإطار اللي اخترته (غامق/فاتح/بدون) هو اللي بيظهر
     const w = img.naturalWidth, h = img.naturalHeight; if(!w || !h) return;
     if(Math.abs(w/h-1) < 0.03) return;           // مربعة: مفيش فراغ
     try{   // لو حواف الصورة شفافة (مثلاً WebP شفاف) نسيبها شفافة
@@ -1667,13 +1667,13 @@ function storeRoomChars(){   // المساحة المتبقية للمنتج ا�
   return storeMax() - base - sum(window._editingImages) - sum(window._editingVideos) - 8000;
 }
 function maxUploadMB(){ return Math.max(0, Math.floor((storeRoomChars()-40)/4*3/104857.6)/10); }
-function vidRoomText(){ const m=maxUploadMB(); return m>0 ? ("أقصى حجم لفيديو تقدر ترفعه من الجهاز دلوقتي: حوالي "+m.toFixed(1)+" MB — للفيديوهات الأكبر استخدم رابط") : "مفيش مساحة كافية لرفع فيديو من الجهاز — استخدم رابط فيديو أو احذف صور/فيديوهات"; }
+function vidRoomText(){ if(jfyBlobMode()) return "أقصى حجم للفيديو الواحد من الجهاز: 95 MB — بيتحفظ كملف منفصل، وبتنزّله مع «نسخة GitHub (ZIP)» من تبويب الشعار والإعدادات. للفيديوهات الأكبر استخدم رابط"; const m=maxUploadMB(); return m>0 ? ("أقصى حجم لفيديو تقدر ترفعه من الجهاز دلوقتي: حوالي "+m.toFixed(1)+" MB — للفيديوهات الأكبر استخدم رابط") : "مفيش مساحة كافية لرفع فيديو من الجهاز — استخدم رابط فيديو أو احذف صور/فيديوهات"; }
 function videoDataLen(arr){ return (arr||[]).reduce((s,v)=>s+((typeof v==="string" && v.indexOf("data:")===0)?v.length:0),0); }
 function renderVidList(){
   return (window._editingVideos||[]).map((v,i)=>{
-    const isData = v.indexOf("data:")===0;
+    const isBlob = v.indexOf("blob:")===0; const isData = v.indexOf("data:")===0 || isBlob;
     const shown = isData ? v : vidBase(v);
-    const label = isData ? ("🎬 فيديو من الجهاز ("+(v.length*0.75/1048576).toFixed(1)+" MB)") : shown;
+    const label = isData ? ("🎬 فيديو من الجهاز ("+(isBlob ? ((JFY_BLOBS.get(vidBase(v))||{file:{size:0}}).file.size/1048576) : (v.length*0.75/1048576)).toFixed(1)+" MB)") : shown;
     const ig = isData ? null : igInfo(v);
     const mode = (ig && ig.bad) ? null : fbMode(v);
     const sel = mode ? `<select title="اتجاه الفيديو" onchange="setVidOri(${i},this.value)"><option value="a"${mode==="a"?" selected":""}>تلقائي</option><option value="v"${mode==="v"?" selected":""}>طولي</option><option value="h"${mode==="h"?" selected":""}>عرضي</option></select>` : "";
@@ -1706,6 +1706,12 @@ function handleVideoFiles(files, mode){
   const tooBig = (name, mb) => toast("الفيديو ("+name+") أكبر من المساحة المتاحة"+(mb!==null?" ("+mb.toFixed(1)+" MB)":"")+" — استخدم رابط فيديو أو قلّل حجمه أو احذف صور/فيديوهات");
   [...files].forEach(f=>{
     if(!/^video\//.test(f.type)){ toast("الملف ده مش فيديو: "+f.name); return; }
+    if(jfyBlobMode() && window.URL && URL.createObjectURL){   // خارج Claude: الفيديو بيتحفظ كملف منفصل (من غير حد لحجم الملف الواحد غير حد GitHub)
+      if(f.size > JFY_MAX_GH_FILE){ toast("الفيديو ("+f.name+") أكبر من 95MB وGitHub مش بيقبل ملف بالحجم ده — استخدم رابط يوتيوب أو فيسبوك أو إنستجرام"); return; }
+      window._editingVideos = window._editingVideos||[];
+      const bu = URL.createObjectURL(f); JFY_BLOBS.set(bu, {file:f, name:f.name});
+      window._editingVideos.push((mode==="v"||mode==="h") ? bu+"#jfy="+mode : bu); refreshVidList(); return;
+    }
     if(Math.ceil(f.size/3)*4 + 60 > storeRoomChars()){ tooBig(f.name, maxUploadMB()); return; }   // رفض فوري قبل قراءة الملف
     const fr=new FileReader();
     fr.onload=()=>{
@@ -1831,7 +1837,17 @@ function renderAdminLogo(){
       <button class="mini-btn" onclick="changeAdminPass()">تحديث كلمة المرور</button>
     </div>
     <div class="admin-row" style="flex-direction:column;align-items:flex-start;gap:10px;margin-top:14px">
-      <b>تنزيل نسخة محدثة من ملف الموقع</b>
+      <b>تنزيل نسخة GitHub (الصور والفيديوهات كملفات منفصلة)</b>
+      <p style="color:var(--muted);font-size:12.5px;margin:0;line-height:1.8">
+        الأفضل لو متجرك كبير أو فيه فيديوهات من الجهاز. بينزّل ملف ZIP فيه <b dir="ltr">index.html</b> خفيف + فولدر <b dir="ltr">media</b> فيه الصور والفيديوهات الجديدة كملفات مستقلة.
+        فك الضغط وارفع الاتنين على GitHub. مفيش حد لإجمالي الميديا غير مساحة GitHub نفسه، والملفات اللي رفعتها قبل كده بتفضل شغالة.
+      </p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="mini-btn" id="btnGhZip" onclick="jfyExportGithub()">⬇️ تنزيل نسخة GitHub (ZIP)</button>
+        <button class="mini-btn" id="btnCheckMedia" onclick="jfyCheckMedia()">🔎 فحص الصور والفيديوهات على الموقع</button></div>
+      <p style="color:var(--muted);font-size:12px;margin:0;line-height:1.7">بعد ما ترفع على GitHub: افتح موقعك المنشور، وادخل لوحة التحكم، واضغط «فحص الصور والفيديوهات». هيقولك لو فيه ملف مش اترفع.</p>
+    </div>
+    <div class="admin-row" style="flex-direction:column;align-items:flex-start;gap:10px;margin-top:14px">
+      <b>تنزيل نسخة محدثة من ملف الموقع (ملف HTML واحد)</b>
       <p style="color:var(--muted);font-size:12.5px;margin:0;line-height:1.8">
         استخدم الزرار ده بعد أي تعديل (منتج، تصنيف، شعار، إكسل...) عشان تاخد نسخة محدثة من ملف HTML بكل بياناتك الحالية جواه.
         بعدها ارفع الملف على الاستضافة بتاعتك (Netlify / GitHub Pages / أي مكان تاني) بنفس الاسم عشان يستبدل النسخة القديمة على نفس الرابط.
@@ -1845,7 +1861,177 @@ function renderAdminLogo(){
     resizeImage(f0, 240, (dataUrl)=>{ DATA.logo=dataUrl; saveData(DATA); renderAdminLogo(); toast("تم تحديث الشعار"); });
   };
 }
+/* ================= نسخة GitHub: الصور والفيديوهات كملفات منفصلة (ZIP) =================
+   الفكرة: index.html بيطلع خفيف (النصوص والأسعار بس) وكل صورة/فيديو جديد بيتحفظ كملف مستقل جوه فولدر media.
+   الصفحة بتشير للملفات بمسار نسبي (media/اسم.jpg)، فمفيش حد لإجمالي حجم الميديا غير مساحة GitHub نفسه.
+   أسماء الملفات مبنية على محتواها، فنفس الصورة ليها نفس الاسم دايماً ومفيش تعارض بين مرة والتانية. */
+const JFY_BLOBS = new Map();                 // رابط مؤقت (blob:) -> {file, name} للفيديوهات الكبيرة اللي لسه ما اتنزلتش
+const JFY_MAX_GH_FILE = 95*1024*1024;        // فوق ده GitHub بيرفض الملف
+const JFY_MAX_WEB_FILE = 24*1024*1024;       // متصفح GitHub بيقبل لحد 25MB للملف الواحد
+function jfyBlobMode(){ return !(window.claude && typeof window.claude.use === "function"); }
+function jfyHasBlobVideos(){
+  try{ return (DATA.products||[]).some(p=>[].concat(p.videos||[], p.video||[]).some(v=>typeof v==="string" && v.indexOf("blob:")===0)); }catch(e){ return false; }
+}
+const JFY_CRC_T = (function(){ const t=new Uint32Array(256); for(let n=0;n<256;n++){ let c=n; for(let k=0;k<8;k++) c = (c&1) ? (0xEDB88320 ^ (c>>>1)) : (c>>>1); t[n]=c>>>0; } return t; })();
+async function jfyScanBlob(blob){   // CRC32 + بصمة تانية على أجزاء (من غير ما نحمّل الملف كله في الذاكرة)
+  let crc=0xFFFFFFFF, h=0x811c9dc5; const CH=4*1024*1024;
+  for(let o=0;o<blob.size;o+=CH){
+    const u8 = new Uint8Array(await blob.slice(o, Math.min(o+CH, blob.size)).arrayBuffer());
+    for(let i=0;i<u8.length;i++){ const b=u8[i]; crc = JFY_CRC_T[(crc^b)&255] ^ (crc>>>8); h = Math.imul(h^b, 16777619); }
+  }
+  return {crc:(crc^0xFFFFFFFF)>>>0, fnv:h>>>0};
+}
+function jfyParseDataUrl(u){
+  const m = /^data:([^;,]*)((?:;[^;,]*)*?);base64,/i.exec(u); if(!m) return null;
+  const mk = /;jfybg=([a-z])/i.exec(m[2]||"");
+  return {mime:(m[1]||"").toLowerCase(), marker: mk ? mk[1].toLowerCase() : "", b64: u.slice(m[0].length)};
+}
+function jfyB64ToBlob(b64, mime){
+  const parts=[], CH=4*65536;   // مضاعف 4 عشان كل جزء base64 يتفك لوحده
+  for(let o=0;o<b64.length;o+=CH){
+    const bin = atob(b64.slice(o, o+CH)), u8 = new Uint8Array(bin.length);
+    for(let i=0;i<bin.length;i++) u8[i]=bin.charCodeAt(i);
+    parts.push(u8);
+  }
+  return new Blob(parts, {type:mime||"application/octet-stream"});
+}
+function jfyExt(mime, name, kind){
+  const M={"image/jpeg":"jpg","image/jpg":"jpg","image/png":"png","image/webp":"webp","image/gif":"gif","image/avif":"avif","video/mp4":"mp4","video/webm":"webm","video/quicktime":"mov","video/ogg":"ogv","video/3gpp":"3gp","video/x-matroska":"mkv","video/x-msvideo":"avi","video/mpeg":"mpg","video/x-m4v":"m4v"};
+  if(M[mime]) return M[mime];
+  const m = /\.([a-z0-9]{2,5})$/i.exec(name||""); if(m) return m[1].toLowerCase();
+  return kind==="video" ? "mp4" : "jpg";
+}
+function jfyBuildZip(entries){   // ZIP بدون ضغط (store) — الصور والفيديوهات مضغوطة أصلاً
+  if(entries.length > 65000) throw new Error("عدد الملفات كبير جداً على ملف ZIP واحد");
+  const enc = new TextEncoder(), parts=[], central=[]; let offset=0;
+  const d = new Date(), dt = (d.getHours()<<11)|(d.getMinutes()<<5)|(d.getSeconds()>>1), dd = (Math.max(d.getFullYear()-1980,0)<<9)|((d.getMonth()+1)<<5)|d.getDate();
+  entries.forEach(e=>{
+    const nb = enc.encode(e.name), size = e.blob.size;
+    if(size > 0xFFFFFFF0 || offset > 0xFFFFFFF0) throw new Error("حجم ملفات الـ ZIP كبير جداً — قسّم التنزيل على مرتين");
+    const lh = new DataView(new ArrayBuffer(30));
+    lh.setUint32(0,0x04034b50,true); lh.setUint16(4,20,true); lh.setUint16(6,0x0800,true); lh.setUint16(8,0,true);
+    lh.setUint16(10,dt,true); lh.setUint16(12,dd,true); lh.setUint32(14,e.crc,true); lh.setUint32(18,size,true); lh.setUint32(22,size,true);
+    lh.setUint16(26,nb.length,true); lh.setUint16(28,0,true);
+    parts.push(lh.buffer, nb, e.blob);
+    const ch = new DataView(new ArrayBuffer(46));
+    ch.setUint32(0,0x02014b50,true); ch.setUint16(4,20,true); ch.setUint16(6,20,true); ch.setUint16(8,0x0800,true); ch.setUint16(10,0,true);
+    ch.setUint16(12,dt,true); ch.setUint16(14,dd,true); ch.setUint32(16,e.crc,true); ch.setUint32(20,size,true); ch.setUint32(24,size,true);
+    ch.setUint16(28,nb.length,true); ch.setUint16(30,0,true); ch.setUint16(32,0,true); ch.setUint16(34,0,true); ch.setUint16(36,0,true);
+    ch.setUint32(38,0,true); ch.setUint32(42,offset,true);
+    central.push(ch.buffer, nb);
+    offset += 30 + nb.length + size;
+  });
+  let cs=0; central.forEach(x=>{ cs += (x.byteLength!==undefined ? x.byteLength : x.length); });
+  const end = new DataView(new ArrayBuffer(22));
+  end.setUint32(0,0x06054b50,true); end.setUint16(8,entries.length,true); end.setUint16(10,entries.length,true); end.setUint32(12,cs,true); end.setUint32(16,offset,true);
+  return new Blob(parts.concat(central, [end.buffer]), {type:"application/zip"});
+}
+let _jfyExporting = false;
+async function jfyExportGithub(){
+  if(_jfyExporting) return; _jfyExporting = true;
+  const btn = document.getElementById("btnGhZip"); if(btn){ btn.disabled = true; btn.textContent = "⏳ جاري تجهيز الملفات..."; }
+  try{
+    const files = new Map();     // مسار -> {blob, crc}
+    const conv = async (val, kind)=>{
+      if(typeof val !== "string") return val;
+      let base = val, suffix = "";
+      const sm = /#jfy=[vh]$/.exec(base); if(sm){ suffix = sm[0]; base = base.slice(0, sm.index); }
+      let blob, mime = "", marker = "", name = "";
+      if(base.indexOf("data:")===0){
+        const pd = jfyParseDataUrl(base); if(!pd) return val;
+        mime = pd.mime; marker = pd.marker; blob = jfyB64ToBlob(pd.b64, mime);
+      }else if(base.indexOf("blob:")===0){
+        const rec = JFY_BLOBS.get(base);
+        if(!rec) throw new Error("فيديو من الجهاز ضاع (الصفحة اتحدثت قبل التنزيل) — احذفه وارفعه تاني");
+        blob = rec.file; mime = rec.file.type || ""; name = rec.name || "";
+      }else return val;   // رابط خارجي أو مسار media/ قديم: يفضل زي ما هو
+      const sc = await jfyScanBlob(blob);
+      const path = "media/" + sc.crc.toString(16).padStart(8,"0") + sc.fnv.toString(16).padStart(8,"0") + blob.size.toString(16) + "." + jfyExt(mime, name, kind);
+      if(!files.has(path)) files.set(path, {blob:blob, crc:sc.crc});
+      return path + (marker ? "#jfybg="+marker : "") + suffix;
+    };
+    const out = Object.assign({}, DATA); out.products = [];
+    for(const p of (DATA.products||[])){
+      const q = Object.assign({}, p);
+      if(Array.isArray(p.images)){ q.images = []; for(const im of p.images) q.images.push(await conv(im, "image")); }
+      if(Array.isArray(p.videos)){ q.videos = []; for(const v of p.videos) q.videos.push(await conv(v, "video")); }
+      if(typeof p.video === "string" && p.video) q.video = await conv(p.video, "video");
+      out.products.push(q);
+    }
+    const htmlBlob = new Blob([snapshotFullHTML(out, true)], {type:"text/html;charset=utf-8"});
+    const hs = await jfyScanBlob(htmlBlob);
+    const entries = [{name:"index.html", blob:htmlBlob, crc:hs.crc}];
+    files.forEach((v,k)=>entries.push({name:k, blob:v.blob, crc:v.crc}));
+    const zip = jfyBuildZip(entries);
+    const url = URL.createObjectURL(zip), a = document.createElement("a");
+    a.href = url; a.download = "JFY_Store_GitHub.zip";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url), 120000);
+    jfyShowExportSummary(htmlBlob.size, files);
+  }catch(e){
+    console.error(e);
+    toast("فشل تجهيز النسخة: " + (e && e.message ? e.message : "خطأ غير معروف"));
+  }finally{
+    _jfyExporting = false;
+    const b2 = document.getElementById("btnGhZip"); if(b2){ b2.disabled = false; b2.textContent = "⬇️ تنزيل نسخة GitHub (ZIP)"; }
+  }
+}
+function jfyShowExportSummary(htmlSize, files){
+  const mb = n => (n/1048576).toFixed(n>=1048576*10?0:1)+" MB";
+  const list = []; files.forEach((v,k)=>list.push([k, v.blob.size]));
+  list.sort((a,b)=>b[1]-a[1]);
+  const big = list.filter(x=>x[1] > JFY_MAX_WEB_FILE);
+  const rows = list.slice(0,12).map(x=>`<div style="display:flex;justify-content:space-between;gap:10px;direction:ltr;font-size:12px;padding:3px 0;border-bottom:1px solid var(--border)"><span>${escapeHtml(x[0])}</span><b>${mb(x[1])}</b></div>`).join("");
+  const more = list.length>12 ? `<div style="font-size:12px;color:var(--muted);padding:4px 0">+ ${list.length-12} ملف تاني</div>` : "";
+  const warn = big.length ? `<div style="background:#fff6e6;border:1px solid #e3b96a;border-radius:10px;padding:9px 11px;margin:10px 0;font-size:12.5px;line-height:1.8">⚠️ فيه <b>${big.length}</b> ملف أكبر من 25MB (الأكبر ${mb(big[0][1])}). متصفح GitHub مش هيقبلهم: ارفعهم بـ <b>GitHub Desktop</b> أو بالأوامر (git). الحد هناك 100MB للملف.</div>` : "";
+  openModal(`<div style="line-height:1.9">
+    <h3 style="margin:0 0 6px">✅ اتنزّلت نسخة GitHub</h3>
+    <p style="margin:0 0 8px;font-size:13px">الملف: <b dir="ltr">JFY_Store_GitHub.zip</b> — فيه <b dir="ltr">index.html</b> (${mb(htmlSize)}) و${files.size ? "<b>"+files.size+"</b> ملف جديد جوه فولدر <b dir=\"ltr\">media</b>" : "من غير ملفات ميديا جديدة"}.</p>
+    ${rows}${more}${warn}
+    <ol style="margin:10px 0 0;padding-right:18px;font-size:13px">
+      <li>فك ضغط الملف على جهازك.</li>
+      <li>على GitHub: <b>Add file ← Upload files</b>، و<b>اسحب بالماوس</b> <b dir="ltr">index.html</b> وفولدر <b dir="ltr">media</b> مع بعض جوه المربع (متستخدمش زرار choose your files لأنه مش بيختار فولدرات).</li>
+      <li>اضغط <b>Commit changes</b> واستنى دقيقة أو اتنين.</li>
+    </ol>
+    <p style="margin:8px 0 0;font-size:12px;color:var(--muted)">الصور والفيديوهات القديمة اللي على GitHub مش محتاجة ترفعها تاني. ارفع الجديد بس.</p>
+    <button class="btn-primary" style="margin-top:12px" onclick="closeModal()">تمام</button>
+  </div>`);
+}
+/* فحص الصور والفيديوهات على الموقع المنشور: بيتأكد إن كل ملف media/ مرجوع في المنتجات موجود فعلاً على GitHub */
+async function jfyCheckMedia(){
+  const box = t => openModal('<div style="line-height:1.9"><h3 style="margin:0 0 6px">🔎 فحص الصور والفيديوهات</h3>'+t+'<button class="btn-primary" style="margin-top:12px" onclick="closeModal()">تمام</button></div>');
+  if(location.protocol !== "https:" && location.protocol !== "http:"){
+    box('<p style="font-size:13px">الفحص بيشتغل على <b>الموقع المنشور</b> بس. افتح موقعك على GitHub Pages (الرابط اللي بيبدأ بـ https) وادخل لوحة التحكم وجرّب تاني.</p>'); return;
+  }
+  const items = new Map();
+  const add = (p, v, kind)=>{
+    if(typeof v !== "string") return;
+    const base = v.replace(/#(jfy|jfybg)=[a-z]$/, "");
+    if(!/^media\//.test(base)) return;
+    if(!items.has(base)) items.set(base, {path:base, kind:kind, prods:[]});
+    const it = items.get(base); if(it.prods.indexOf(p.name) < 0) it.prods.push(p.name);
+  };
+  (DATA.products||[]).forEach(p=>{ (p.images||[]).forEach(v=>add(p,v,"image")); (p.videos||[]).forEach(v=>add(p,v,"video")); if(typeof p.video==="string" && p.video) add(p,p.video,"video"); });
+  if(!items.size){ box('<p style="font-size:13px">مفيش صور أو فيديوهات محفوظة كملفات منفصلة في المتجر ده لسه، فمفيش حاجة تتفحص.</p>'); return; }
+  const btn = document.getElementById("btnCheckMedia"); if(btn){ btn.disabled = true; btn.textContent = "⏳ جاري الفحص..."; }
+  try{
+    const list = Array.from(items.values()), bad = []; let idx = 0;
+    const worker = async ()=>{ while(idx < list.length){ const it = list[idx++];
+      try{ const r = await fetch(it.path, {method:"HEAD", cache:"no-store"}); if(!r.ok) bad.push(Object.assign({code:r.status}, it)); }
+      catch(e){ bad.push(Object.assign({code:0}, it)); } } };
+    await Promise.all([worker(), worker(), worker(), worker()]);
+    if(!bad.length){
+      box('<div class="ok" style="background:#ddf4e4;border:1px solid #8fd1a4;border-radius:10px;padding:10px 12px;font-size:13.5px">✅ كل الملفات (<b>'+list.length+'</b>) موجودة على الموقع. لو لسه مش ظاهرة عندك، اعمل تحديث إجباري (Ctrl + F5).</div>');
+    }else{
+      const rows = bad.slice(0,15).map(b=>'<div style="direction:ltr;text-align:left;font-size:12px;padding:3px 0;border-bottom:1px solid var(--border)">'+escapeHtml(b.path)+' <span style="color:#b3261e">('+(b.code||"خطأ اتصال")+')</span><div dir="rtl" style="color:var(--muted)">'+escapeHtml(b.prods.join("، "))+'</div></div>').join("");
+      box('<div style="background:#fdecea;border:1px solid #e08a84;border-radius:10px;padding:10px 12px;font-size:13.5px">⚠️ <b>'+bad.length+'</b> ملف من <b>'+list.length+'</b> مش موجود على الموقع:</div>'+rows+(bad.length>15?'<div style="font-size:12px;color:var(--muted)">+ '+(bad.length-15)+' ملف تاني</div>':'')+
+        '<ol style="margin:10px 0 0;padding-right:18px;font-size:13px"><li>افتح الـ Repository على GitHub: لازم تشوف <b dir="ltr">index.html</b> وفولدر <b dir="ltr">media</b> <b>جنب بعض</b> في الصفحة الرئيسية (مش جوه فولدر تاني).</li><li>افتح فولدر <b dir="ltr">media</b> وتأكد إن الملفات اللي فوق موجودة بنفس الأسماء.</li><li>لو ناقصة: ارفع فولدر <b dir="ltr">media</b> كله بالسحب والإفلات (مش بزرار choose your files)، واضغط Commit changes، واستنى دقيقتين وافحص تاني.</li></ol>');
+    }
+  }catch(e){ box('<p style="font-size:13px">حصلت مشكلة في الفحص: '+escapeHtml(String(e && e.message || e))+'</p>'); }
+  finally{ const b2 = document.getElementById("btnCheckMedia"); if(b2){ b2.disabled = false; b2.textContent = "🔎 فحص الصور والفيديوهات على الموقع"; } }
+}
 function downloadUpdatedSite(){
+  if(jfyHasBlobVideos()){ toast("فيه فيديوهات من الجهاز محفوظة كملفات منفصلة — استخدم زرار «نسخة GitHub (ZIP)» بدل ده"); return; }
   try{
     const html = snapshotFullHTML(DATA);
     const blob = new Blob([html], {type:"text/html;charset=utf-8"});
@@ -1854,6 +2040,7 @@ function downloadUpdatedSite(){
     a.href = url; a.download = "JFY_Store.html";
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     setTimeout(()=>URL.revokeObjectURL(url), 3000);
+    if(blob.size > JFY_MAX_WEB_FILE){ toast("تم التنزيل، لكن حجم الملف "+(blob.size/1048576).toFixed(1)+" MB أكبر من 25MB — متصفح GitHub مش هيقبله. استخدم «نسخة GitHub (ZIP)» أو GitHub Desktop"); return; }
     toast("تم تنزيل نسخة محدثة — ارفعها على استضافتك لتحديث الموقع");
   }catch(e){
     console.error(e);
