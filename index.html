@@ -2510,7 +2510,7 @@ window.onerror = function(msg){ console.error(msg); toast("حدث خطأ غير 
     var name = (typeof STORE_NAME !== "undefined" && STORE_NAME) || document.title || "JFY Store";
 
     /* نفس الصورة بنفس الحجم في الاختصار والتطبيق المثبّت (أيفون وأندرويد وكمبيوتر) */
-    var F = 0.70;
+    var F = 0.62;
     var any512 = render(img, info, 512, F), any192 = render(img, info, 192, F);
     var mask512 = any512, mask192 = any192;
     var apple180 = render(img, info, 180, F);
